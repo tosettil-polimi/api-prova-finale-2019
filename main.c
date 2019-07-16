@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "hashtable.c"
 
 // Primo test di struttura dati
 typedef struct {
@@ -23,5 +22,5 @@ void main() {
 
     printf("size: %d\n", sizeof(prova.relazioni));
 
-    freeUtente(prova);
+    freeUtente(utenti);
 }
