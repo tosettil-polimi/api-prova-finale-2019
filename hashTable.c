@@ -12,7 +12,7 @@ struct GeneralHashTable {
     struct GeneralNode **list;
 };
 
-struct GeneralHashTable *createTable(int size){
+struct GeneralHashTable *createTableGeneral(int size){
     struct GeneralHashTable *t = (struct GeneralHashTable*) malloc(sizeof(struct GeneralHashTable));
     t->size = size;
     t->list = (struct GeneralNode**) malloc(sizeof(struct GeneralNode*) * size);
@@ -43,21 +43,22 @@ unsigned int hashCodeString(char *str)
     return hash;
 }
 
-int hashCode(struct GeneralHashTable *t, char *key){
+int hashCodeGeneral(struct GeneralHashTable *t, char *key){
     int hash = hashCodeString(key);
     
     return hash % t->size;
 }
 
-void insert(struct GeneralHashTable *t, char *key, int val){
-    int pos = hashCode(t,key);
+int insertGeneral(struct GeneralHashTable *t, char *key, int val){
+    int pos = hashCode(t, key);
     struct GeneralNode *list = t->list[pos];
     struct GeneralNode *temp = list;
 
     while(temp) {
-        if(temp->key == key){
+
+        if(strcmp(temp->key, key) == 0) {
             temp->val = val;
-            return;
+            return 0;
         }
 
         temp = temp->next;
@@ -70,17 +71,36 @@ void insert(struct GeneralHashTable *t, char *key, int val){
     newNode->next = list;
 
     t->list[pos] = newNode;
+    // TODO: update hastablesize
+    return 1;
 }
 
-int find(struct GeneralHashTable *t, char *key){
+int findGeneral(struct GeneralHashTable *t, char *key){
     int pos = hashCode(t, key);
     struct GeneralNode *list = t->list[pos];
     struct GeneralNode *temp = list;
     
     while(temp){
-        if(temp->key == key){
+        if(strcmp(temp->key, key) == 0) {
             return temp->val;
         }
+        temp = temp->next;
+    }
+
+    return -1;
+}
+
+int removeGeneral(struct GeneralHashTable *t, char *key) {
+    int pos = hashCode(t, key);
+    struct GeneralNode *list = t->list[pos];
+    struct GeneralNode *temp = list;
+
+    while (temp) {
+        if (strcmp(temp->key, key) == 0) {
+            freeGeneralNode(temp);
+            return pos;
+        }
+
         temp = temp->next;
     }
 
