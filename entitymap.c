@@ -9,9 +9,9 @@ struct EntityNode {
 
 struct Entities {
     int size;
-    int *indexes; // list of used hashes (indexes of list)
+    int indexes[SIZE_INIT_GENERAL]; // list of used hashes (indexes of list)
     int indexesSize;
-    struct EntityNode **list;
+    struct EntityNode *list[SIZE_INIT_GENERAL];
 };
 
 struct Entities *createEntities() {
@@ -19,8 +19,6 @@ struct Entities *createEntities() {
     
     e->size = SIZE_INIT_GENERAL;
     e->indexesSize = 0;
-    e->indexes = (int *) malloc(sizeof(int) * SIZE_INIT_GENERAL);
-    e->list = (struct EntityNode**) malloc(sizeof(struct EntityNode*) * SIZE_INIT_GENERAL);
 
     return e;
 }
@@ -164,15 +162,76 @@ void freeEntities() {
             node = temp;
         }
     }
+}
 
-    free(e->indexes);
-    free(e->list);
+void readline(char *str) {
+    char c;
+    int i = 0;
+    
+    do {
+        c = fgetc(stdin);
+        str[i] = c;
+        i++;
+    } while (c != '\n');
 
-    free(e);
+    str[i] = 0;
+}
+
+int parseInput(char *s) {
+
+    if (s[0] != '"') return 0;
+
+    int index = 1;
+    char temp[MAX_STR];
+    
+    while (s[index] != '"' && s[index] != 0) {
+        temp[index - 1] = s[index];
+        index++;
+    }
+
+    temp[index - 1] = 0;
+
+    if (strcmp(temp, "addent") == 0) {
+
+        return 1;
+    }
+
+    if (strcmp(temp, "addrel") == 0) {
+
+        return 2;
+    }
+
+    if (strcmp(temp, "delent") == 0) {
+
+        return 3;
+    }
+
+    if (strcmp(temp, "delrel") == 0) {
+
+        return 4;
+    }
+
+    if (strcmp(s, "\"report\"") == 0) {
+
+        return 5;
+    }
+
+    if (strcmp(s, "\"end\"") == 0) {
+        return 6;
+    }
+
+    return 0;
+
 }
 
 void main() {
-    int i, j;
+    int i, j, stop = 0;
+    char input[130];
+
+    do {
+        readline(input);
+        parseInput(input);
+    } while (!stop);
 
     e = createEntities();
     relationsPresent = createStringList();

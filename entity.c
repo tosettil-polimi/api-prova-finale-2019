@@ -9,9 +9,9 @@ struct RelationshipsNode {
 
 struct Relationships {
     int size;
-    int *indexes;
+    int indexes[SIZE_INIT];
     int indexesSize;
-    struct RelationshipsNode **list;
+    struct RelationshipsNode *list[SIZE_INIT];
 };
 
 struct Entity {
@@ -161,8 +161,6 @@ struct Relationships *createRelationships() {
 
     hashMap = (struct Relationships*) malloc(sizeof(struct Relationships));
 
-    hashMap->list = (struct RelationshipsNode**) malloc(sizeof(struct RelationshipsNode*) * SIZE_INIT);
-    hashMap->indexes = (int*) malloc(sizeof(int) * SIZE_INIT);
     hashMap->size = SIZE_INIT;
     hashMap->indexesSize = 0;
 
@@ -211,9 +209,6 @@ void freeEntity(struct Entity *ent) {
             free(temp);
         }
     }
-
-    free(ent->relationships->list);
-    free(ent->relationships->indexes);
 
     free(ent->name);
     free(ent->relationships);
