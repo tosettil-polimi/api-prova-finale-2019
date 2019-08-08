@@ -1,9 +1,18 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "relazioniHashTable.c"
+
+int pos;
+struct GeneralNode *list;
+struct GeneralNode *temp;
+struct GeneralHashTable *t;
+
+
+// TODO
+void freeUtente(struct Utente*);
+void freeGeneralNode(struct GeneralNode*);
 
 struct GeneralNode {
     char *key;
-    int val;
+    struct Utente* val;
     struct GeneralNode *next;
 };
 
@@ -12,52 +21,42 @@ struct GeneralHashTable {
     struct GeneralNode **list;
 };
 
-struct GeneralHashTable *createTableGeneral(int size){
-    struct GeneralHashTable *t = (struct GeneralHashTable*) malloc(sizeof(struct GeneralHashTable));
-    t->size = size;
-    t->list = (struct GeneralNode**) malloc(sizeof(struct GeneralNode*) * size);
+struct GeneralHashTable *createTableGeneral(){
+    t = (struct GeneralHashTable*) malloc(sizeof(struct GeneralHashTable));
+    t->size = 500;
+    t->list = (struct GeneralNode**) malloc(sizeof(struct GeneralNode*) * 500);
     
     int i;
 
-    for(i=0;i<size;i++)
+    for(i=0;i<10;i++)
         t->list[i] = NULL;
     
     return t;
 }
 
-unsigned int rol(const unsigned int value, int shift) {
-    if ((shift &= sizeof(value) * 8 - 1) == 0)
-      return value;
-    return (value << shift) | (value >> (sizeof(value)*8 - shift));
-}
-
-unsigned int hashCodeString(char *str)
-{
+int hashCode(int size, char *key){
     unsigned int hash = 0x55555555;
-
-    while(*str) {
-        hash ^= *str++;
-        hash = rol(hash, 5);
-    }
-
-    return hash;
-}
-
-int hashCodeGeneral(struct GeneralHashTable *t, char *key){
-    int hash = hashCodeString(key);
+    int five = 5;
     
-    return hash % t->size;
+    while(*key) {
+        hash ^= *key++;
+        if (!((five &= sizeof(hash) * 8 - 1) == 0))
+            hash = (hash << five) | (hash >> (sizeof(hash)*8 - five));
+    }
+    
+    return hash % size;
 }
 
-int insertGeneral(struct GeneralHashTable *t, char *key, int val){
-    int pos = hashCode(t, key);
-    struct GeneralNode *list = t->list[pos];
-    struct GeneralNode *temp = list;
+int insertGeneral(char *key, struct Utente *val){
+    pos = hashCode(t->size, key);
+    list = t->list[pos];
+    temp = list;
 
     while(temp) {
 
         if(strcmp(temp->key, key) == 0) {
-            temp->val = val;
+            freeUtente(temp->val);
+            temp->val = NULL;
             return 0;
         }
 
@@ -71,14 +70,14 @@ int insertGeneral(struct GeneralHashTable *t, char *key, int val){
     newNode->next = list;
 
     t->list[pos] = newNode;
-    // TODO: update hastablesize
+    
     return 1;
 }
 
-int findGeneral(struct GeneralHashTable *t, char *key){
-    int pos = hashCode(t, key);
-    struct GeneralNode *list = t->list[pos];
-    struct GeneralNode *temp = list;
+struct Utente* findGeneral(struct GeneralHashTable *t, char *key){
+    pos = hashCode(t->size, key);
+    list = t->list[pos];
+    temp = list;
     
     while(temp){
         if(strcmp(temp->key, key) == 0) {
@@ -91,9 +90,9 @@ int findGeneral(struct GeneralHashTable *t, char *key){
 }
 
 int removeGeneral(struct GeneralHashTable *t, char *key) {
-    int pos = hashCode(t, key);
-    struct GeneralNode *list = t->list[pos];
-    struct GeneralNode *temp = list;
+    pos = hashCode(t->size, key);
+    list = t->list[pos];
+    temp = list;
 
     while (temp) {
         if (strcmp(temp->key, key) == 0) {
@@ -106,13 +105,3 @@ int removeGeneral(struct GeneralHashTable *t, char *key) {
 
     return -1;
 }
-
-/*
-int main(){
-    struct GeneralHashTable *t = createTable(5);
-    insert(t,2,3);
-    insert(t,5,4);
-    printf("%d", find(t,5));
-    return 0;
-}
-*/

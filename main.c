@@ -1,21 +1,32 @@
 #include "hashtable.c"
 #include "utente.c"
+#include <stdlib.h>
+#include <stdio.h>
 
 // Primo test di struttura dati
 
 void main() {
-    struct GeneralHashTable *hashTable = createTableGeneral(100);
 
-    struct Utente prova;
-    struct Utente *utenti;
-    
-    prova.nome = malloc(sizeof(char) * 10);
-    utenti = malloc(sizeof(struct Utente) * 100);
+    int *v, i;
 
-    prova.relazioni = utenti;
+    v = (int*) malloc(sizeof(int) * 3);
 
-    printf("size: %lu\n", sizeof(*(prova.relazioni)));
+    for(i = 0; i < 3; i++) {
+        v[i] = i;
+        printf("%d\n", i);
+    }
 
-    freeUtente(utenti);
-    free(prova.nome);
+    printf("size: %ls\n", v);
+
+    v = (int*) realloc(v, sizeof(int) * 4);
+
+    v[3] = 3;
+
+    printf("size: %ls\n", v);
+
+    for(i = 0; i < 4; i++) {
+        printf("%d\n", v[i]);
+    }
+
+    free(v);
 }

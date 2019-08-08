@@ -1,4 +1,5 @@
 #include "stringlist.c"
+#include "binaryintarray.c"
 
 struct RelationshipsNode {
     char *key;
@@ -8,7 +9,8 @@ struct RelationshipsNode {
 
 struct Relationships {
     int size;
-    int elemNum;
+    int *indexes;
+    int indexesSize;
     struct RelationshipsNode **list;
 };
 
@@ -44,7 +46,7 @@ int insertRelationEntity(struct Entity *ent, char *key, char *relation) {
 
     while(temp) { // serve a gestire le collisioni di hash
         if(strcmp(temp->key, key) == 0) // se l'entità è già presente, inserisce la relazione all'interno di quell'entità (per esempio io sono lollo in relazione con luca secondo rel_1,
-                                        // se viene chiamato il comando "addrel" "luca" "tose" "rel_2", ora la struttura sarà: lollo % luca -> rel_1, rel_2)
+                                        // se viene chiamato il comando "addrel" "tose" "luca" "rel_2", ora la struttura sarà: lollo % luca -> rel_1, rel_2)
             return binaryStringListAdd(temp->val, relation);
 
         if (temp->next == NULL)
@@ -65,6 +67,9 @@ int insertRelationEntity(struct Entity *ent, char *key, char *relation) {
         lastNode->next = NULL;
 
         ent->relationships->list[pos] = lastNode;
+
+        binaryAdd(ent->relationships->indexes, ent->relationships->indexesSize, pos);
+        ent->relationships->indexesSize++;
     } else { // hash collision, inserisco in coda al nodo con stesso hash
         lastNode->next = (struct RelationshipsNode*) malloc(sizeof(struct RelationshipsNode));
 
@@ -94,6 +99,55 @@ struct StringList *getRelationsByKey(struct Entity* ent, char *key) {
     return NULL; // not found
 }
 
+int deleteRelation(struct Entity *ent, char *name, char *rel) {
+    int pos = hashCode(ent->relationships->size, name);
+    struct RelationshipsNode *node = ent->relationships->list[pos];
+
+    while (node) {
+        if (strcmp(node->key, name) == 0) {
+            binaryStringListDelete(node->val, rel);
+            return 1;
+        }
+
+        node = node->next;
+    }
+
+    return 0;
+}
+
+// cancella tutte le relazioni che ent ha con key (si usa con delent)
+int deleteRelEntByName(struct Entity* ent, char *key) {
+    int pos = hashCode(ent->relationships->size, key);
+
+    struct RelationshipsNode *node = ent->relationships->list[pos];
+    struct RelationshipsNode *prec = node;
+
+    while (node) {
+        if (strcmp(node->key, key) == 0) {
+            if (node == ent->relationships->list[pos])
+                ent->relationships->list[pos]->next = node->next;
+            else
+                prec->next = node->next;
+
+            freeStringList(node->val);
+            free(node->key);
+            free(node);
+
+            if (!ent->relationships->list[pos]) {
+                binaryDelete(ent->relationships->indexes, ent->relationships->indexesSize, pos);
+                ent->relationships->indexesSize--;
+            }
+
+            return 1;
+        }
+
+        prec = node;
+        node = node->next;
+    }
+
+    return 0;
+}
+
 void addRelation(struct Entity *ent, char *key, char *entity) {
     struct StringList *list = getRelationsByKey(ent, key);
 
@@ -106,9 +160,11 @@ struct Relationships *createRelationships() {
     struct Relationships *hashMap;
 
     hashMap = (struct Relationships*) malloc(sizeof(struct Relationships));
+
     hashMap->list = (struct RelationshipsNode**) malloc(sizeof(struct RelationshipsNode*) * SIZE_INIT);
+    hashMap->indexes = (int*) malloc(sizeof(int) * SIZE_INIT);
     hashMap->size = SIZE_INIT;
-    hashMap->elemNum = 0;
+    hashMap->indexesSize = 0;
 
     return hashMap;
 }
@@ -157,6 +213,7 @@ void freeEntity(struct Entity *ent) {
     }
 
     free(ent->relationships->list);
+    free(ent->relationships->indexes);
 
     free(ent->name);
     free(ent->relationships);
@@ -171,24 +228,21 @@ struct RelationshipsNode *relationshipsToArray(struct Relationships *rel) {
 
     int i;
 
-    for (i = 0; i < rel->size; i++) {
-        
-        if (rel->list[i] != NULL) {
-            struct RelationshipsNode *temp = rel->list[i];
-            do {
-                node->next = (struct RelationshipsNode*) malloc(sizeof(struct RelationshipsNode));
+    for (i = 0; i < rel->indexesSize; i++) {        
+        struct RelationshipsNode *temp = rel->list[rel->indexes[i]];
+        do {
+            node->next = (struct RelationshipsNode*) malloc(sizeof(struct RelationshipsNode));
 
-                node->key = (char*) malloc(sizeof(char) * MAX_STR);
-                strcpy(node->key, temp->key);
+            node->key = (char*) malloc(sizeof(char) * MAX_STR);
+            strcpy(node->key, temp->key);
 
-                node->val = temp->val;
+            node->val = temp->val;
 
-                prec = node;
-                node = node->next;
+            prec = node;
+            node = node->next;
 
-                temp = temp->next;
-            } while (temp);
-        }
+            temp = temp->next;
+        } while (temp);
     }
 
     free(prec->next);
@@ -209,37 +263,4 @@ struct StringList *getValEntity(struct Entity *ent, const char *key) {
     }
 
     return NULL;
-}
-
-void main() {
-    struct Entity *ent;
-    int i;
-    
-    ent = createEntity("tose");
-
-    insertRelationEntity(ent, "gio", "amico");
-    insertRelationEntity(ent, "gio", "compagno");
-    insertRelationEntity(ent, "gio", "culo");
-
-    insertRelationEntity(ent, "dio", "culo");
-    insertRelationEntity(ent, "dio", "cane");
-
-    insertRelationEntity(ent, "amns", "culo");
-    insertRelationEntity(ent, "amnb", "culo");
-    insertRelationEntity(ent, "amne", "cane");
-    
-    struct RelationshipsNode *rel = relationshipsToArray(ent->relationships);
-
-    while (rel) {
-        printf ("Name: %s, hash: %d\n", rel->key, hashCode(SIZE_INIT, rel->key));
-
-        for (i = 0; i < rel->val->size; i++) {
-            printf("\tRel: %s", rel->val->list[i]);
-        }
-        printf("\n");
-
-        rel = rel->next;
-    }
-
-    freeEntity(ent);
 }

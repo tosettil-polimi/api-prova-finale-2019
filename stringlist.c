@@ -103,4 +103,14 @@ struct StringList *createStringList() {
     return list;
 }
 
+void freeStringList(struct StringList *list) {
+    int i = 0;
+
+    for (; i < list->size; i++) {
+        free(list->list[i]);
+    }
+
+    free(list);
+}
+
 struct StringList *relationsPresent;
