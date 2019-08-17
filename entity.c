@@ -38,6 +38,8 @@ char *entityToString(struct Entity *ent) {
 }
 
 int insertRelationEntity(struct Entity *ent, char *key, char *relation) {
+    if(ent == NULL) return -1;
+    
     int pos = hashCode(ent->relationships->size, key);
     
     struct RelationshipsNode *node = ent->relationships->list[pos];
@@ -106,6 +108,22 @@ int deleteRelation(struct Entity *ent, char *name, char *rel) {
     while (node) {
         if (strcmp(node->key, name) == 0) {
             binaryStringListDelete(node->val, rel);
+            node = ent->relationships->list[pos];
+            
+            if (node->val->size == 0) { // if is the last relation between the two entities
+                freeStringList(node->val);
+                free(node->key);
+                
+                ent->relationships->list[pos] = node->next;
+
+                free(node);
+                
+                if (ent->relationships->list[pos] == NULL) {
+                    binaryDelete(ent->relationships->indexes, ent->relationships->indexesSize, pos);
+                    ent->relationships->indexesSize--;
+                }
+            }
+            
             return 1;
         }
 
@@ -217,6 +235,8 @@ void freeEntity(struct Entity *ent) {
 }
 
 struct RelationshipsNode *relationshipsToArray(struct Relationships *rel) {
+    if (rel->indexesSize == 0) return NULL;
+
     struct RelationshipsNode *first = (struct RelationshipsNode*) malloc(sizeof(struct RelationshipsNode));
     struct RelationshipsNode *node = first;
     struct RelationshipsNode *prec;
@@ -240,8 +260,12 @@ struct RelationshipsNode *relationshipsToArray(struct Relationships *rel) {
         } while (temp);
     }
 
-    free(prec->next);
-    prec->next = NULL;
+    if (prec != NULL) {
+        if (prec->next != NULL) {
+            free(prec->next);
+            prec->next = NULL;
+        }
+    }
     
     return first;
 }

@@ -35,7 +35,7 @@ int binaryStringListAdd(struct StringList *list, char *str) {
 
             break;
         } else if (cmp == 0) { // already present
-            return 0;
+            return -2;
         }
     }
 

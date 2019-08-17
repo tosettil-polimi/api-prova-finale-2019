@@ -126,9 +126,19 @@ struct Entity *getEntityByName(char *name) {
 }
 
 int addrel(char *ent1, char *ent2, char *rel) {
-    binaryStringListAdd(relationsPresent, rel);
     struct Entity *ent = getEntityByName(ent1);
-    return insertRelationEntity(ent, ent2, rel);
+
+    if(e->list[hashCode(e->size, ent2)] == NULL) return -2;
+    
+    int retval = insertRelationEntity(ent, ent2, rel);
+    
+    if (retval == -2)
+        return -4;
+
+    if (retval <= 0) 
+        return binaryStringListAdd(relationsPresent, rel);
+    
+    return retval;
 }
 
 int delrel(char *ent1, char *ent2, char *rel) {
@@ -164,6 +174,35 @@ void freeEntities() {
     }
 }
 
+void printEntities() {
+    int i, j;    
+
+    for (i = 0; i < e->indexesSize; i++) {
+        struct Entity *ent = e->list[e->indexes[i]]->kv;
+        struct RelationshipsNode *rel;
+        
+        rel = NULL;
+        
+        if (ent->relationships != NULL) rel = relationshipsToArray(ent->relationships);
+
+        printf("Entity: %s\n", ent->name);
+
+        while (rel) {
+            printf ("   Name: %s, size: %d, hash: %d\n", rel->key, rel->val->size, hashCode(SIZE_INIT, rel->key));
+
+            for (j = 0; j < rel->val->size; j++) {
+                printf("      Rel: %s", rel->val->list[j]);
+            }
+
+            printf("\n");
+
+            rel = rel->next;
+        }
+
+        printf("\n");
+    }
+}
+
 void readline(char *str) {
     char c;
     int i = 0;
@@ -174,14 +213,14 @@ void readline(char *str) {
         i++;
     } while (c != '\n');
 
-    str[i] = 0;
+    str[i - 1] = 0;
 }
 
 int parseInput(char *s) {
 
     if (s[0] != '"') return 0;
 
-    int index = 1;
+    int index = 1, i = 0;
     char temp[MAX_STR];
     
     while (s[index] != '"' && s[index] != 0) {
@@ -191,32 +230,144 @@ int parseInput(char *s) {
 
     temp[index - 1] = 0;
 
-    if (strcmp(temp, "addent") == 0) {
+    index += 2;
+    int nQuot = 0;
 
-        return 1;
+    if (strcmp(temp, "addent") == 0) {
+        do {
+            if (s[index] != '"') {
+                temp[i] = s[index];
+                i++;
+            } else {
+                nQuot++;
+            }
+
+            index++;
+        } while (s[index] != 0 && nQuot < 2);
+        
+        temp[i] = 0;
+
+        return addent(temp);
     }
 
     if (strcmp(temp, "addrel") == 0) {
+        char ent1[MAX_STR], ent2[MAX_STR], rel[MAX_STR];
 
-        return 2;
+        do {
+            if (s[index] != '"') {
+                ent1[i] = s[index];
+                i++;
+            } else {
+                nQuot++;
+            }
+
+            index++;
+        } while (nQuot < 2 && s[index] != 0);
+
+        if(s[index] == 0) return -3;
+
+        ent1[i] = 0, i = 0, nQuot = 0;
+        index++;
+
+        do {
+            if (s[index] != '"') {
+                ent2[i] = s[index];
+                i++;
+            } else {
+                nQuot++;
+            }
+
+            index++;
+        } while(nQuot < 2);
+
+        if(s[index] == 0) return -3;
+
+        ent2[i] = 0, i = 0;
+
+        do {
+            index++;
+
+            if (s[index] != '"') {
+                rel[i] = s[index];
+                i++;
+            }
+        } while(s[index] != 0);
+
+        return addrel(ent1, ent2, rel);
     }
 
     if (strcmp(temp, "delent") == 0) {
+        do {
+            if (s[index] != '"') {
+                temp[i] = s[index];
+                i++;
+            }
 
-        return 3;
+            index++;
+        } while (s[index] != 0);
+        
+        temp[i] = 0;
+        
+        return delent(temp);
     }
 
     if (strcmp(temp, "delrel") == 0) {
+        char ent1[MAX_STR], ent2[MAX_STR], rel[MAX_STR];
 
-        return 4;
+        do {
+            if (s[index] != '"') {
+                ent1[i] = s[index];
+                i++;
+            } else {
+                nQuot++;
+            }
+
+            index++;
+        } while (nQuot < 2 && s[index] != 0);
+
+        if(s[index] == 0) return -3;
+
+        ent1[i] = 0, i = 0, nQuot = 0;
+        index++;
+
+        do {
+            if (s[index] != '"') {
+                ent2[i] = s[index];
+                i++;
+            } else {
+                nQuot++;
+            }
+
+            index++;
+        } while(nQuot < 2);
+
+        if(s[index] == 0) return -3;
+
+        ent2[i] = 0, i = 0;
+
+        do {
+            index++;
+
+            if (s[index] != '"') {
+                rel[i] = s[index];
+                i++;
+            }
+        } while(s[index] != 0);
+
+        return delrel(ent1, ent2, rel);
     }
 
     if (strcmp(s, "\"report\"") == 0) {
-
+        report();
         return 5;
     }
 
     if (strcmp(s, "\"end\"") == 0) {
+        return 10;
+    }
+
+    if (strcmp(s, "\"print\"") == 0) {
+        printEntities();
         return 6;
     }
 
@@ -228,80 +379,13 @@ void main() {
     int i, j, stop = 0;
     char input[130];
 
-    do {
-        readline(input);
-        parseInput(input);
-    } while (!stop);
-
     e = createEntities();
     relationsPresent = createStringList();
 
-    addent("tose");
-    addent("gio");
-    addent("dio");
-    addent("ciaone");
-    
-    addrel("tose", "gio", "amico");
-    addrel("tose", "dio", "amico");
-    addrel("tose", "dio", "bestemmia");
-    addrel("gio", "dio", "bestemmia");
-    addrel("dio", "ciaone", "dice");
-    addrel("gio", "ciaone", "dice");
-    addrel("ciaone", "tose", "dice");
-    
-
-    for (i = 0; i < e->indexesSize; i++) {
-        struct Entity *ent = e->list[e->indexes[i]]->kv;
-        struct RelationshipsNode *rel = relationshipsToArray(ent->relationships);
-
-        printf("Entity: %s\n", ent->name);
-
-        while (rel) {
-            printf ("   Name: %s, size: %d, hash: %d\n", rel->key, rel->val->size, hashCode(SIZE_INIT, rel->key));
-
-            for (j = 0; j < rel->val->size; j++) {
-                printf("      Rel: %s", rel->val->list[j]);
-            }
-            printf("\n");
-
-            rel = rel->next;
-        }
-
-        printf("\n");
-    }
+    do {
+        readline(input);
+        stop = parseInput(input);
+    } while (stop != 10);
 
     freeEntities();
-
-    /*
-    struct Entity *ent;
-    int i;
-    
-    ent = createEntity("tose");
-
-    insertRelationEntity(ent, "gio", "amico");
-    insertRelationEntity(ent, "gio", "compagno");
-    insertRelationEntity(ent, "gio", "culo");
-
-    insertRelationEntity(ent, "dio", "culo");
-    insertRelationEntity(ent, "dio", "cane");
-
-    insertRelationEntity(ent, "amns", "culo");
-    insertRelationEntity(ent, "amnb", "culo");
-    insertRelationEntity(ent, "amne", "cane");
-    
-    struct RelationshipsNode *rel = relationshipsToArray(ent->relationships);
-
-    while (rel) {
-        printf ("Name: %s, hash: %d\n", rel->key, hashCode(SIZE_INIT, rel->key));
-
-        for (i = 0; i < rel->val->size; i++) {
-            printf("\tRel: %s", rel->val->list[i]);
-        }
-        printf("\n");
-
-        rel = rel->next;
-    }
-
-    freeEntity(ent);
-    */
 }
