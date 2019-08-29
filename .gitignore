@@ -1,4 +1,7 @@
 main
 entity
+rep
+valgrind.out
+output.txt
 .vscode/*
 .idea/*

@@ -51,8 +51,9 @@ int insertRelationEntity(struct Entity *ent, char *key, char *relation) {
                                         // se viene chiamato il comando "addrel" "tose" "luca" "rel_2", ora la struttura sarà: lollo % luca -> rel_1, rel_2)
             return binaryStringListAdd(temp->val, relation);
 
-        if (temp->next == NULL)
-            lastNode = lastNode;
+        if (temp->next == NULL) {
+            lastNode = temp;
+        }
         
         temp = temp->next;
     }
@@ -143,7 +144,7 @@ int deleteRelEntByName(struct Entity* ent, char *key) {
     while (node) {
         if (strcmp(node->key, key) == 0) {
             if (node == ent->relationships->list[pos])
-                ent->relationships->list[pos]->next = node->next;
+                ent->relationships->list[pos] = node->next;
             else
                 prec->next = node->next;
 
@@ -177,10 +178,18 @@ void addRelation(struct Entity *ent, char *key, char *entity) {
 struct Relationships *createRelationships() {
     struct Relationships *hashMap;
 
-    hashMap = (struct Relationships*) malloc(sizeof(struct Relationships));
+    hashMap = (struct Relationships*) calloc(1, sizeof(struct Relationships));
 
     hashMap->size = SIZE_INIT;
     hashMap->indexesSize = 0;
+    
+    /*
+    int i;
+
+    for (i = 0; i < SIZE_INIT; i++) {
+        hashMap->list[i] = NULL;
+    }
+    */
 
     return hashMap;
 }

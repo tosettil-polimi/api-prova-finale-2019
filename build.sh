@@ -1,3 +1,3 @@
 #!/bin/sh
-#gcc main.c -o main
-gcc test.c -o test
+gcc entitymap.c -o entity
+exit 0

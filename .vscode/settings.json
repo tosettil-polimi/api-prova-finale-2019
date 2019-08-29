@@ -1,6 +1,7 @@
 {
     "files.associations": {
-        "string.h": "c"
+        "string.h": "c",
+        "libandconst.h": "c"
     },
     "files.exclude": {
         "**/.classpath": true,

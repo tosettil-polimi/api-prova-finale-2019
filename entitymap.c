@@ -1,4 +1,5 @@
 #include "entity.c"
+#include "report.c"
 
 struct Entities *e;
 
@@ -36,7 +37,7 @@ int addent(char *name) {
             return 0;
 
         if (temp->next == NULL)
-            lastNode = lastNode;
+            lastNode = temp;
         
         temp = temp->next;
     }
@@ -49,7 +50,7 @@ int addent(char *name) {
 
         e->list[pos] = lastNode;
         
-        e->indexes[e->indexesSize] = pos;
+        binaryAdd(e->indexes, e->indexesSize, pos);
         e->indexesSize++;
     } else { // hash collision, inserisco in coda al nodo con stesso hash
         lastNode->next = (struct EntityNode*) malloc(sizeof(struct EntityNode));
@@ -64,10 +65,12 @@ int addent(char *name) {
 void deleteDependencies(char *name) {
     struct EntityNode *node;
     int i;
+    
+    //if (strcmp(name, "Elizabeth_Cutler") == 0) printf("e->indexesSize: %d\n", e->indexesSize);
 
     for (i = 0; i < e->indexesSize; i++) {
         node = e->list[e->indexes[i]];
-
+        //if (strcmp(name, "Elizabeth_Cutler") == 0) printf("e->indexes[%d]: %ld\n", i, e->indexes[i]);
         while (node) {
             struct Entity *ent = node->kv;
             deleteRelEntByName(ent, name);
@@ -84,6 +87,10 @@ int delent(char *name) {
 
     while (node) {
         if (strcmp(node->kv->name, name) == 0) {
+            /*
+            if (strcmp(name, "Elizabeth_Cutler") == 0) {
+                printf("node: %ld\n", node);
+            }*/
             deleteDependencies(name);
 
             if (node == e->list[pos]) { // first element
@@ -135,7 +142,7 @@ int addrel(char *ent1, char *ent2, char *rel) {
     if (retval == -2)
         return -4;
 
-    if (retval <= 0) 
+    if (retval > 0) 
         return binaryStringListAdd(relationsPresent, rel);
     
     return retval;
@@ -154,6 +161,51 @@ int delrel(char *ent1, char *ent2, char *rel) {
     }
 
     return -1;
+}
+
+char *report() {
+    int i, j, z;
+
+    for (i = 0; i < relationsPresent->size; i++) {
+        int relMaxNum = 0;
+        char *rel = relationsPresent->list[i];
+        
+        struct ReportObject *rep = (struct ReportObject*) malloc(sizeof(struct ReportObject));
+        createReportObject(rep, rel);
+
+        for (j = 0; j < e->indexesSize; j++) {
+            struct EntityNode *node = e->list[e->indexes[j]];
+
+            while (node) {
+                for (z = 0; z < node->kv->relationships->indexesSize; z++) {
+                    struct RelationshipsNode *relNode = node->kv->relationships->list[node->kv->relationships->indexes[z]];
+                    
+                    while (relNode) {
+                        int index = binaryStringListSearch(relNode->val, rel);
+                        
+                        if (index >= 0) {
+                            addComparsa(rep, relNode->key);
+                        }
+
+                        relNode = relNode->next;
+                    }
+                }
+
+                node = node->next;
+            }
+        }
+
+        printReportObject(rep);
+        
+        fputc(' ', stdout);
+
+        freeReportObject(rep);
+    }
+
+    if (relationsPresent->size == 0) 
+        fputs("none", stdout);
+
+    fputc('\n', stdout);
 }
 
 void freeEntities() {
@@ -203,34 +255,32 @@ void printEntities() {
     }
 }
 
-void readline(char *str) {
+void readline(char *str, FILE *fp) {
     char c;
     int i = 0;
-    
+
     do {
-        c = fgetc(stdin);
+        c = fgetc(fp);
         str[i] = c;
         i++;
+        fputc(c, stdout);
     } while (c != '\n');
 
     str[i - 1] = 0;
 }
 
-int parseInput(char *s) {
-
-    if (s[0] != '"') return 0;
-
-    int index = 1, i = 0;
+static inline int parseInput(char *s) {
+    int index = 0, i = 0;
     char temp[MAX_STR];
     
-    while (s[index] != '"' && s[index] != 0) {
-        temp[index - 1] = s[index];
+    while (s[index] != ' ' && s[index] != 0) {  
+        temp[index] = s[index];
         index++;
     }
 
-    temp[index - 1] = 0;
+    temp[index] = 0;
 
-    index += 2;
+    index += 1;
     int nQuot = 0;
 
     if (strcmp(temp, "addent") == 0) {
@@ -357,16 +407,16 @@ int parseInput(char *s) {
         return delrel(ent1, ent2, rel);
     }
 
-    if (strcmp(s, "\"report\"") == 0) {
+    if (strcmp(s, "report") == 0) {
         report();
         return 5;
     }
 
-    if (strcmp(s, "\"end\"") == 0) {
+    if (strcmp(s, "end") == 0) {
         return 10;
     }
 
-    if (strcmp(s, "\"print\"") == 0) {
+    if (strcmp(s, "print") == 0) {
         printEntities();
         return 6;
     }
@@ -379,11 +429,13 @@ void main() {
     int i, j, stop = 0;
     char input[130];
 
+    FILE *fp = fopen("batch2.2.in","r");
+
     e = createEntities();
     relationsPresent = createStringList();
 
     do {
-        readline(input);
+        readline(input, fp);
         stop = parseInput(input);
     } while (stop != 10);
 

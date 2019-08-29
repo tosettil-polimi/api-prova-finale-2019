@@ -13,10 +13,7 @@ int binaryStringListAdd(struct StringList *list, char *str) {
 
         if (cmp < 0) {
 
-            if (list->list == NULL) // if list is empty
-                list->list = (char**) malloc(sizeof(char*));
-            else 
-                list->list = (char**) realloc(list->list, list->size * sizeof(sizeof(char*)) + sizeof(char*));
+            list->list = (char**) realloc(list->list, (list->size + 1 ) * sizeof(char*));
             
             list->list[list->size] = (char*) malloc(sizeof(char) * MAX_STR);
             list->size++;
@@ -40,13 +37,15 @@ int binaryStringListAdd(struct StringList *list, char *str) {
     }
 
     if (!added) {
-        list->list = (char**) realloc(list->list, list->size * sizeof(sizeof(char*)) + sizeof(char*));
+        if (list->list == NULL) list->list = (char**) malloc(sizeof(char*));
+        else list->list = (char**) realloc(list->list, (list->size + 1 ) * sizeof(char*));
+
         list->list[list->size] = (char*) malloc(sizeof(char) * MAX_STR);
         strcpy(list->list[list->size], str);
         list->size++;
     }
 
-    return 1;
+    return i;
 }
 
 
