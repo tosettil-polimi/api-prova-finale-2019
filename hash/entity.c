@@ -49,7 +49,7 @@ int insertRelationEntity(struct Entity *ent, char *key, char *relation) {
     while(temp) { // serve a gestire le collisioni di hash
         if(strcmp(temp->key, key) == 0) // se l'entità è già presente, inserisce la relazione all'interno di quell'entità (per esempio io sono lollo in relazione con luca secondo rel_1,
                                         // se viene chiamato il comando "addrel" "tose" "luca" "rel_2", ora la struttura sarà: lollo % luca -> rel_1, rel_2)
-            return binaryStringListAdd(temp->val, relation);
+            return binaryStringListAdd(temp->val, relation) >= 0;
 
         if (temp->next == NULL) {
             lastNode = temp;

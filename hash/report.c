@@ -65,30 +65,30 @@ char* itoa(int i, char b[]){
     return b;
 }
 
-void printReportObject(struct ReportObject *rep) {
+void printReportObject(struct ReportObject *rep, FILE *fp) {
     char c;
     int i = 0, j = 0;
 
-    fputc('"', stdout);
+    fputc('"', fp);
     do {
         c = rep->relName[i];
-        if (c != 0) fputc(c, stdout);
+        if (c != 0) fputc(c, fp);
         i++;
     } while (c != 0);
-    fputc('"', stdout);
+    fputc('"', fp);
     
-    fputc(' ', stdout);
+    fputc(' ', fp);
 
     for (i = 0; i < rep->names->size; i++) {
         if (rep->numComparse[i] == rep->maxRelNum) {
-            fputc('"', stdout);
+            fputc('"', fp);
             do {   
                 c = rep->names->list[i][j];
-                if (c != 0) fputc(c, stdout);
+                if (c != 0) fputc(c, fp);
                 j++;
             } while(c != 0);
-            fputc('"', stdout);
-            fputc(' ', stdout);
+            fputc('"', fp);
+            fputc(' ', fp);
 
             j = 0;
         }
@@ -101,10 +101,10 @@ void printReportObject(struct ReportObject *rep) {
     c = str[0];
 
     while (c != 0) {
-        fputc(c, stdout);
+        fputc(c, fp);
         c = str[i];
         i++;
     }
 
-    fputc(';', stdout);
+    fputc(';', fp);
 }

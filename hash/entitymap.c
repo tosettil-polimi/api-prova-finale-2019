@@ -163,7 +163,7 @@ int delrel(char *ent1, char *ent2, char *rel) {
     return -1;
 }
 
-char *report() {
+void report(FILE *fp) {
     int i, j, z;
 
     for (i = 0; i < relationsPresent->size; i++) {
@@ -195,17 +195,17 @@ char *report() {
             }
         }
 
-        printReportObject(rep);
+        printReportObject(rep, fp);
         
-        fputc(' ', stdout);
+        if (i + 1 != relationsPresent->size) fputc(' ', fp);
 
         freeReportObject(rep);
     }
 
     if (relationsPresent->size == 0) 
-        fputs("none", stdout);
+        fputs("none", fp);
 
-    fputc('\n', stdout);
+    fputc('\n', fp);
 }
 
 void freeEntities() {
@@ -269,7 +269,7 @@ void readline(char *str, FILE *fp) {
     str[i - 1] = 0;
 }
 
-static inline int parseInput(char *s) {
+static inline int parseInput(char *s, FILE *out) {
     int index = 0, i = 0;
     char temp[MAX_STR];
     
@@ -408,7 +408,7 @@ static inline int parseInput(char *s) {
     }
 
     if (strcmp(s, "report") == 0) {
-        report();
+        report(out);
         return 5;
     }
 
@@ -429,15 +429,11 @@ void main() {
     int i, j, stop = 0;
     char input[130];
 
-    FILE *fp = fopen("batch2.2.in","r");
-
     e = createEntities();
     relationsPresent = createStringList();
 
     do {
-        readline(input, fp);
-        stop = parseInput(input);
+        readline(input, stdin);
+        stop = parseInput(input, stdout);
     } while (stop != 10);
-
-    freeEntities();
 }
