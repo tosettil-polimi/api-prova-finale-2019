@@ -103,8 +103,6 @@ static inline int delent(char *name) {
                 e->indexesSize--;
             }
 
-            delentReport(report, name);
-
             return 1;
         }
 
@@ -139,8 +137,6 @@ static inline int addrel(char *ent1, char *ent2, char *rel) {
     
     if (retval == -2)
         return -4;
-
-    addReportComparsa(report, rel, ent2);
     
     return retval;
 }
@@ -151,11 +147,7 @@ static inline int delrel(char *ent1, char *ent2, char *rel) {
 
     while(node) {
         if (strcmp(node->kv->name, ent1) == 0) {
-            int retval = deleteRelation(node->kv, ent2, rel);
-
-            if (retval) return removeReportComparsa(report, rel, ent2);
-            
-            return retval;
+            return deleteRelation(node->kv, ent2, rel);
         }
 
         node = node->next;
@@ -316,7 +308,7 @@ static inline int parseInput(char *s, FILE *out) {
         retval = addrel(ent1, ent2, rel);
 
         if (retval >= 0) {
-            //TODO: Report struct update
+            addReportComparsa(report, rel, ent2);
         }
     }
 
@@ -335,7 +327,7 @@ static inline int parseInput(char *s, FILE *out) {
         retval = delent(temp);
 
         if (retval) {
-            // TODO: update Report struct 
+            delentReport(report, temp);
         }
     }
 
@@ -385,7 +377,7 @@ static inline int parseInput(char *s, FILE *out) {
         retval = delrel(ent1, ent2, rel);
 
         if (retval) {
-            //TODO: update Report struct
+            removeReportComparsa(report, rel, ent2);
         }
     }
 
