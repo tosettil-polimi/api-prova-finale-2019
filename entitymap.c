@@ -15,7 +15,7 @@ struct Entities {
     struct EntityNode *list[SIZE_INIT_GENERAL];
 };
 
-struct Entities *createEntities() {
+static inline struct Entities *createEntities() {
     struct Entities *e = (struct Entities*) malloc(sizeof(struct Entities));
     
     e->size = SIZE_INIT_GENERAL;
@@ -25,7 +25,7 @@ struct Entities *createEntities() {
 }
 
 
-int addent(char *name) {
+static inline int addent(char *name) {
     int pos = hashCode(e->size, name);
     
     struct EntityNode *node = e->list[pos];
@@ -62,7 +62,7 @@ int addent(char *name) {
     return 1;
 }
 
-void deleteDependencies(char *name) {
+static inline void deleteDependencies(char *name) {
     struct EntityNode *node;
     int i;
     
@@ -79,7 +79,7 @@ void deleteDependencies(char *name) {
     }
 }
 
-int delent(char *name) {
+static inline int delent(char *name) {
     int pos = hashCode(e->size, name);
 
     struct EntityNode *node = e->list[pos];
@@ -117,7 +117,7 @@ int delent(char *name) {
     return 0;
 }
 
-struct Entity *getEntityByName(char *name) {
+static inline struct Entity *getEntityByName(char *name) {
     int pos = hashCode(e->size, name);
 
     struct EntityNode *ent = e->list[pos];
@@ -132,7 +132,7 @@ struct Entity *getEntityByName(char *name) {
     return NULL;
 }
 
-int addrel(char *ent1, char *ent2, char *rel) {
+static inline int addrel(char *ent1, char *ent2, char *rel) {
     struct Entity *ent = getEntityByName(ent1);
 
     if(e->list[hashCode(e->size, ent2)] == NULL) return -2;
@@ -148,7 +148,7 @@ int addrel(char *ent1, char *ent2, char *rel) {
     return retval;
 }
 
-int delrel(char *ent1, char *ent2, char *rel) {
+static inline int delrel(char *ent1, char *ent2, char *rel) {
     int pos = hashCode(e->size, ent1);
     struct EntityNode *node = e->list[pos];
 
@@ -163,7 +163,7 @@ int delrel(char *ent1, char *ent2, char *rel) {
     return -1;
 }
 
-void report(FILE *fp) {
+static inline void report(FILE *fp) {
     int i, j, z;
 
     for (i = 0; i < relationsPresent->size; i++) {
@@ -208,7 +208,7 @@ void report(FILE *fp) {
     fputc('\n', fp);
 }
 
-void freeEntities() {
+static inline void freeEntities() {
     int i;
 
     for (i = 0; i < e->indexesSize; i++) {
@@ -226,7 +226,7 @@ void freeEntities() {
     }
 }
 
-void printEntities() {
+static inline void printEntities() {
     int i, j;    
 
     for (i = 0; i < e->indexesSize; i++) {
@@ -255,7 +255,7 @@ void printEntities() {
     }
 }
 
-void readline(char *str, FILE *fp) {
+static inline void readline(char *str, FILE *fp) {
     char c;
     int i = 0;
 

@@ -1,4 +1,4 @@
-int binaryAdd(int *v, int size, int val) {
+static inline int binaryAdd(int *v, int size, int val) {
     int i, j;
 
     for (i = 0; i < size; i++) {
@@ -21,7 +21,7 @@ int binaryAdd(int *v, int size, int val) {
     return size;
 }
 
-int binarySearch(int *v, int size, int val) {
+static inline int binarySearch(int *v, int size, int val) {
     int l = 0, r = size - 1;
 
     while (l <= r) {
@@ -43,7 +43,7 @@ int binarySearch(int *v, int size, int val) {
     return -1;
 }
 
-int binaryDelete(int *v, int size, int val) {
+static inline int binaryDelete(int *v, int size, int val) {
     int i = binarySearch(v, size, val);
 
     if (i < 0) 

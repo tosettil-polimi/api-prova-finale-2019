@@ -5,7 +5,7 @@ struct StringList {
     char **list;
 };
 
-int binaryStringListAdd(struct StringList *list, char *str) {
+static inline int binaryStringListAdd(struct StringList *list, char *str) {
     int added = 0, cmp, i, j;
 
     for (i = 0; i < list->size; i++) {
@@ -49,7 +49,7 @@ int binaryStringListAdd(struct StringList *list, char *str) {
 }
 
 
-int binaryStringListSearch(struct StringList *list, char *str) {
+static inline int binaryStringListSearch(struct StringList *list, char *str) {
     int l = 0, r = list->size - 1;
 
     while (l <= r) {
@@ -73,7 +73,7 @@ int binaryStringListSearch(struct StringList *list, char *str) {
     return -1;
 }
 
-int binaryStringListDelete(struct StringList *list, char *str) {
+static inline int binaryStringListDelete(struct StringList *list, char *str) {
     int i = binaryStringListSearch(list, str);
 
     if (i < 0) 
@@ -92,7 +92,7 @@ int binaryStringListDelete(struct StringList *list, char *str) {
     return 1;
 }
 
-struct StringList *createStringList() {
+static inline struct StringList *createStringList() {
     struct StringList *list;
 
     list = (struct StringList*) malloc(sizeof(struct StringList));
@@ -102,7 +102,7 @@ struct StringList *createStringList() {
     return list;
 }
 
-void freeStringList(struct StringList *list) {
+static inline void freeStringList(struct StringList *list) {
     int i = 0;
 
     for (; i < list->size; i++) {

@@ -5,14 +5,14 @@ struct ReportObject {
     int *numComparse;
 };
 
-void createReportObject(struct ReportObject *obj, char *relName) {
+static inline void createReportObject(struct ReportObject *obj, char *relName) {
     strcpy(obj->relName, relName);
 
     obj->maxRelNum = 0;
     obj->names = createStringList();
 }
 
-void addComparsa(struct ReportObject *obj, char *name) {
+static inline void addComparsa(struct ReportObject *obj, char *name) {
     int index = binaryStringListAdd(obj->names, name);
     int i;
     
@@ -40,12 +40,13 @@ void addComparsa(struct ReportObject *obj, char *name) {
     }
 }
 
-void freeReportObject(struct ReportObject *rep) {
+static inline void freeReportObject(struct ReportObject *rep) {
     freeStringList(rep->names);
     free(rep->numComparse);
+    free(rep);
 }
 
-char* itoa(int i, char b[]){
+static inline char* itoa(int i, char b[]){
     char const digit[] = "0123456789";
     char* p = b;
     if(i<0){
@@ -65,7 +66,7 @@ char* itoa(int i, char b[]){
     return b;
 }
 
-void printReportObject(struct ReportObject *rep, FILE *fp) {
+static inline void printReportObject(struct ReportObject *rep, FILE *fp) {
     char c;
     int i = 0, j = 0;
 

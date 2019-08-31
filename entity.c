@@ -20,7 +20,7 @@ struct Entity {
 };
 
 
-int hashCode(int size, const char *key){
+static inline int hashCode(int size, const char *key){
     unsigned int hash = 0x55555555;
     int five = 5;
     
@@ -33,11 +33,11 @@ int hashCode(int size, const char *key){
     return hash % size;
 }
 
-char *entityToString(struct Entity *ent) {
+static inline char *entityToString(struct Entity *ent) {
     return NULL;
 }
 
-int insertRelationEntity(struct Entity *ent, char *key, char *relation) {
+static inline int insertRelationEntity(struct Entity *ent, char *key, char *relation) {
     if(ent == NULL) return -1;
     
     int pos = hashCode(ent->relationships->size, key);
@@ -89,7 +89,7 @@ int insertRelationEntity(struct Entity *ent, char *key, char *relation) {
 }
 
 
-struct StringList *getRelationsByKey(struct Entity* ent, char *key) {
+static inline struct StringList *getRelationsByKey(struct Entity* ent, char *key) {
     struct RelationshipsNode *temp = ent->relationships->list[hashCode(ent->relationships->size, key)];
 
     while(temp) {
@@ -102,7 +102,7 @@ struct StringList *getRelationsByKey(struct Entity* ent, char *key) {
     return NULL; // not found
 }
 
-int deleteRelation(struct Entity *ent, char *name, char *rel) {
+static inline int deleteRelation(struct Entity *ent, char *name, char *rel) {
     int pos = hashCode(ent->relationships->size, name);
     struct RelationshipsNode *node = ent->relationships->list[pos];
 
@@ -135,7 +135,7 @@ int deleteRelation(struct Entity *ent, char *name, char *rel) {
 }
 
 // cancella tutte le relazioni che ent ha con key (si usa con delent)
-int deleteRelEntByName(struct Entity* ent, char *key) {
+static inline int deleteRelEntByName(struct Entity* ent, char *key) {
     int pos = hashCode(ent->relationships->size, key);
 
     struct RelationshipsNode *node = ent->relationships->list[pos];
@@ -167,7 +167,7 @@ int deleteRelEntByName(struct Entity* ent, char *key) {
     return 0;
 }
 
-void addRelation(struct Entity *ent, char *key, char *entity) {
+static inline void addRelation(struct Entity *ent, char *key, char *entity) {
     struct StringList *list = getRelationsByKey(ent, key);
 
     if (list != NULL) {
@@ -175,7 +175,7 @@ void addRelation(struct Entity *ent, char *key, char *entity) {
     }
 }
 
-struct Relationships *createRelationships() {
+static inline struct Relationships *createRelationships() {
     struct Relationships *hashMap;
 
     hashMap = (struct Relationships*) calloc(1, sizeof(struct Relationships));
@@ -194,7 +194,7 @@ struct Relationships *createRelationships() {
     return hashMap;
 }
 
-struct Entity *createEntity(char *name) {
+static inline struct Entity *createEntity(char *name) {
     struct Entity *ent = (struct Entity*) malloc(sizeof(struct Entity));
 
     ent->name = (char*) malloc(sizeof(char) * MAX_STR);
@@ -204,7 +204,7 @@ struct Entity *createEntity(char *name) {
     return ent;
 }
 
-void freeEntity(struct Entity *ent) {
+static inline void freeEntity(struct Entity *ent) {
     struct RelationshipsNode *temp, *temp2, *next;
     int i, j;
     
@@ -243,7 +243,7 @@ void freeEntity(struct Entity *ent) {
     free(ent);
 }
 
-struct RelationshipsNode *relationshipsToArray(struct Relationships *rel) {
+static inline struct RelationshipsNode *relationshipsToArray(struct Relationships *rel) {
     if (rel->indexesSize == 0) return NULL;
 
     struct RelationshipsNode *first = (struct RelationshipsNode*) malloc(sizeof(struct RelationshipsNode));
@@ -279,7 +279,7 @@ struct RelationshipsNode *relationshipsToArray(struct Relationships *rel) {
     return first;
 }
 
-struct StringList *getValEntity(struct Entity *ent, const char *key) {
+static inline struct StringList *getValEntity(struct Entity *ent, const char *key) {
     int pos = hashCode(ent->relationships->size, key);
     struct RelationshipsNode *node = ent->relationships->list[pos];
 
