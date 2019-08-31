@@ -74,14 +74,12 @@ static inline int binaryStringListSearch(struct StringList *list, char *str) {
 }
 
 static inline int binaryStringListDelete(struct StringList *list, char *str) {
-    int i = binaryStringListSearch(list, str);
+    int index = binaryStringListSearch(list, str);
 
-    if (i < 0) 
-        return 0;
-
-    char prec[MAX_STR], temp[MAX_STR];
+    if (index < 0) 
+        return -1;
     
-    for (; i < list->size - 1; i++)
+    for (short i = index; i < list->size - 1; i++)
         strcpy(list->list[i], list->list[i+1]);
 
     free(list->list[(list->size) - 1]);
@@ -89,7 +87,7 @@ static inline int binaryStringListDelete(struct StringList *list, char *str) {
 
     list->list = (char**) realloc(list->list, list->size * sizeof(char*));
 
-    return 1;
+    return index;
 }
 
 static inline struct StringList *createStringList() {
@@ -111,5 +109,3 @@ static inline void freeStringList(struct StringList *list) {
 
     free(list);
 }
-
-struct StringList *relationsPresent;

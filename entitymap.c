@@ -1,7 +1,8 @@
 #include "entity.c"
-#include "report.c"
 
 struct Entities *e;
+struct Report *report;
+struct StringList *relationsPresent;
 
 struct EntityNode {
     struct Entity *kv; /* key and val */
@@ -163,15 +164,14 @@ static inline int delrel(char *ent1, char *ent2, char *rel) {
     return -1;
 }
 
-static inline void report(FILE *fp) {
+static inline void doReport(FILE *fp) {
     int i, j, z;
 
     for (i = 0; i < relationsPresent->size; i++) {
         int relMaxNum = 0;
         char *rel = relationsPresent->list[i];
         
-        struct ReportObject *rep = (struct ReportObject*) malloc(sizeof(struct ReportObject));
-        createReportObject(rep, rel);
+        struct ReportObject *rep = createReportObject(rel);
 
         for (j = 0; j < e->indexesSize; j++) {
             struct EntityNode *node = e->list[e->indexes[j]];
@@ -281,7 +281,7 @@ static inline int parseInput(char *s, FILE *out) {
     temp[index] = 0;
 
     index += 1;
-    int nQuot = 0;
+    int nQuot = 0, retval;
 
     if (strcmp(temp, "addent") == 0) {
         do {
@@ -343,7 +343,11 @@ static inline int parseInput(char *s, FILE *out) {
             }
         } while(s[index] != 0);
 
-        return addrel(ent1, ent2, rel);
+        retval = addrel(ent1, ent2, rel);
+
+        if (retval >= 0) {
+            //TODO: Report struct update
+        }
     }
 
     if (strcmp(temp, "delent") == 0) {
@@ -358,7 +362,11 @@ static inline int parseInput(char *s, FILE *out) {
         
         temp[i] = 0;
         
-        return delent(temp);
+        retval = delent(temp);
+
+        if (retval) {
+            // TODO: update Report struct 
+        }
     }
 
     if (strcmp(temp, "delrel") == 0) {
@@ -404,11 +412,15 @@ static inline int parseInput(char *s, FILE *out) {
             }
         } while(s[index] != 0);
 
-        return delrel(ent1, ent2, rel);
+        retval = delrel(ent1, ent2, rel);
+
+        if (retval) {
+            //TODO: update Report struct
+        }
     }
 
     if (strcmp(s, "report") == 0) {
-        report(out);
+        doReport(out);
         return 5;
     }
 
@@ -430,6 +442,7 @@ void main() {
     char input[130];
 
     e = createEntities();
+    report = createReport();
     relationsPresent = createStringList();
 
     do {
