@@ -2,7 +2,6 @@
 
 struct Entities *e;
 struct Report *report;
-struct StringList *relationsPresent;
 
 struct EntityNode {
     struct Entity *kv; /* key and val */
@@ -88,10 +87,6 @@ static inline int delent(char *name) {
 
     while (node) {
         if (strcmp(node->kv->name, name) == 0) {
-            /*
-            if (strcmp(name, "Elizabeth_Cutler") == 0) {
-                printf("node: %ld\n", node);
-            }*/
             deleteDependencies(name);
 
             if (node == e->list[pos]) { // first element
@@ -107,6 +102,8 @@ static inline int delent(char *name) {
                 binaryDelete(e->indexes, e->indexesSize, pos);
                 e->indexesSize--;
             }
+
+            delentReport(report, name);
 
             return 1;
         }
@@ -143,8 +140,7 @@ static inline int addrel(char *ent1, char *ent2, char *rel) {
     if (retval == -2)
         return -4;
 
-    if (retval > 0) 
-        return binaryStringListAdd(relationsPresent, rel);
+    addReportComparsa(report, rel, ent2);
     
     return retval;
 }
@@ -155,7 +151,11 @@ static inline int delrel(char *ent1, char *ent2, char *rel) {
 
     while(node) {
         if (strcmp(node->kv->name, ent1) == 0) {
-            return deleteRelation(node->kv, ent2, rel);
+            int retval = deleteRelation(node->kv, ent2, rel);
+
+            if (retval) return removeReportComparsa(report, rel, ent2);
+            
+            return retval;
         }
 
         node = node->next;
@@ -165,45 +165,15 @@ static inline int delrel(char *ent1, char *ent2, char *rel) {
 }
 
 static inline void doReport(FILE *fp) {
-    int i, j, z;
-
-    for (i = 0; i < relationsPresent->size; i++) {
-        int relMaxNum = 0;
-        char *rel = relationsPresent->list[i];
-        
-        struct ReportObject *rep = createReportObject(rel);
-
-        for (j = 0; j < e->indexesSize; j++) {
-            struct EntityNode *node = e->list[e->indexes[j]];
-
-            while (node) {
-                for (z = 0; z < node->kv->relationships->indexesSize; z++) {
-                    struct RelationshipsNode *relNode = node->kv->relationships->list[node->kv->relationships->indexes[z]];
-                    
-                    while (relNode) {
-                        int index = binaryStringListSearch(relNode->val, rel);
-                        
-                        if (index >= 0) {
-                            addComparsa(rep, relNode->key);
-                        }
-
-                        relNode = relNode->next;
-                    }
-                }
-
-                node = node->next;
-            }
-        }
-
-        printReportObject(rep, fp);
-        
-        if (i + 1 != relationsPresent->size) fputc(' ', fp);
-
-        freeReportObject(rep);
+    if (report->relationsNum == 0) {
+        fputs("none\n", fp);
+        return;
     }
 
-    if (relationsPresent->size == 0) 
-        fputs("none", fp);
+    for (short i = 0; i < report->relationsNum; i++) {
+        printReportObject(report->objects[i], fp);
+        if (i + 1 != report->relationsNum) fputc(' ', fp);
+    }
 
     fputc('\n', fp);
 }
@@ -443,7 +413,6 @@ void main() {
 
     e = createEntities();
     report = createReport();
-    relationsPresent = createStringList();
 
     do {
         readline(input, stdin);

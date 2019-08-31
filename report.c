@@ -1,4 +1,5 @@
 #include "stringlist.c"
+#include "binaryintarray.c"
 
 struct Report {
     struct ReportObject *objects[MAX_RELATION];
@@ -28,7 +29,7 @@ static inline int addReportObject(struct Report *rep, struct ReportObject *obj) 
         if (cmp < 0) {            
             rep->relationsNum++;
 
-            struct ReportObj *prec, *temp;
+            struct ReportObject *prec, *temp;
             temp = obj;
 
             added = 1;
@@ -119,7 +120,7 @@ static inline struct ReportObject *createReportObject(char *relName) {
 
 // aggiunge all'oggetto report la relazione che l'entita 'name' riceve
 static inline int addReportComparsa(struct Report *rep, char *relName, char *name) {
-    int index = findReportObject(report, relName);
+    int index = findReportObject(rep, relName);
     struct ReportObject *obj;
 
     if (index < 0) {
@@ -133,6 +134,12 @@ static inline int addReportComparsa(struct Report *rep, char *relName, char *nam
     addComparsa(obj, name);
 
     return 2;
+}
+
+static inline void freeReportObject(struct ReportObject *rep) {
+    freeStringList(rep->names);
+    free(rep->numComparse);
+    free(rep);
 }
 
 static inline int deleteReportObject(struct Report *rep, char *relName) {
@@ -216,13 +223,6 @@ static inline void delentReport(struct Report *rep, char *name) {
             }
         }
     }
-}
-
-
-static inline void freeReportObject(struct ReportObject *rep) {
-    freeStringList(rep->names);
-    free(rep->numComparse);
-    free(rep);
 }
 
 static inline void freeReport(struct Report *rep) {

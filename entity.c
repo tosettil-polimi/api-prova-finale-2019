@@ -1,5 +1,4 @@
 #include "report.c"
-#include "binaryintarray.c"
 
 struct RelationshipsNode {
     char *key;
