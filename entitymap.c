@@ -403,11 +403,13 @@ void main() {
     int i, j, stop = 0;
     char input[130];
 
+    FILE *fp = fopen("output.txt", "w");
+
     e = createEntities();
     report = createReport();
 
     do {
         readline(input, stdin);
-        stop = parseInput(input, stdout);
+        stop = parseInput(input, fp);
     } while (stop != 10);
 }

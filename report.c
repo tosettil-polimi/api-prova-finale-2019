@@ -126,6 +126,8 @@ static inline int addReportComparsa(struct Report *rep, char *relName, char *nam
     if (index < 0) {
         obj = createReportObject(relName);
         addReportObject(rep, obj);
+        addComparsa(obj, name);
+        
         return 1;
     }
 
