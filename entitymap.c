@@ -307,7 +307,7 @@ static inline int parseInput(char *s, FILE *out) {
 
         retval = addrel(ent1, ent2, rel);
 
-        if (retval >= 0) {
+        if (retval) {
             addReportComparsa(report, rel, ent2);
         }
     }
