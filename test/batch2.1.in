@@ -148,6 +148,8 @@ delrel "Rory_Williams" "Veil" "kills"
 report
 delrel "Mickey_Smith" "Veil" "kills"
 report
+print Donna_Noble 1
+print Donna_Noble 2
 delrel "Sandman" "The_Doctor" "fights"
 delent "Donna_Noble"
 delrel "River_Song" "Akhaten" "kills"

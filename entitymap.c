@@ -1,7 +1,6 @@
 #include "entity.c"
 
 struct Entities *e;
-struct Report *report;
 
 struct EntityNode {
     struct Entity *kv; /* key and val */
@@ -188,10 +187,15 @@ static inline void freeEntities() {
     }
 }
 
-static inline void printEntities() {
-    int i, j;    
+// filterType: 0 => no filter
+// filterType: 1 => entity that receive a relation
+// filterType: 2 => entity that give a relation
+// filterType: 3 => relation
+static inline void printEntities(char *filter, int filterType) {
+    int i, j, isFirst;
 
     for (i = 0; i < e->indexesSize; i++) {
+        int entered = 0;
         struct Entity *ent = e->list[e->indexes[i]]->kv;
         struct RelationshipsNode *rel;
         
@@ -199,21 +203,99 @@ static inline void printEntities() {
         
         if (ent->relationships != NULL) rel = relationshipsToArray(ent->relationships);
 
-        printf("Entity: %s\n", ent->name);
+        switch (filterType) {
+            case 0:
+                printf("Entity: %s\n", ent->name);
+                entered = 1;
 
-        while (rel) {
-            printf ("   Name: %s, size: %d, hash: %d\n", rel->key, rel->val->size, hashCode(SIZE_INIT, rel->key));
+                while (rel) {
+                    printf ("   Name: %s, size: %d, hash: %d\n", rel->key, rel->val->size, hashCode(SIZE_INIT, rel->key));
 
-            for (j = 0; j < rel->val->size; j++) {
-                printf("      Rel: %s", rel->val->list[j]);
-            }
+                    for (j = 0; j < rel->val->size; j++) {
+                        printf("      Rel: %s", rel->val->list[j]);
+                    }
 
-            printf("\n");
+                    printf("\n");
 
-            rel = rel->next;
+                    rel = rel->next;
+                }
+                break;
+
+            case 1:
+                isFirst = 1;
+
+                while (rel) {
+                    if (strcmp(rel->key, filter) == 0) {
+                        entered = 1;
+                        if (isFirst) {
+                            printf("Entity: %s\n", ent->name);
+                            isFirst = 0;
+                        }
+
+                        printf ("   Name: %s, size: %d, hash: %d\n", rel->key, rel->val->size, hashCode(SIZE_INIT, rel->key));
+
+                        for (j = 0; j < rel->val->size; j++) {
+                            printf("      Rel: %s", rel->val->list[j]);
+                        }
+
+                        printf("\n");
+                    }
+
+                    rel = rel->next;
+                }
+                break;
+
+            case 2:
+                if (strcmp(ent->name, filter) == 0) {           
+                    entered = 1;         
+                    printf("Entity: %s\n", ent->name);
+
+                    while (rel) {
+                        printf ("   Name: %s, size: %d, hash: %d\n", rel->key, rel->val->size, hashCode(SIZE_INIT, rel->key));
+
+                        for (j = 0; j < rel->val->size; j++) {
+                            printf("      Rel: %s", rel->val->list[j]);
+                        }
+
+                        printf("\n");
+
+                        rel = rel->next;
+                    }
+                }
+                break;
+
+            case 3:
+                isFirst = 1;
+
+                while (rel) {
+                    int isFirstFirst = 1;
+                    
+                    for (j = 0; j < rel->val->size; j++) {
+                        if (strcpy(rel->val->list[j], filter) == 0) {
+                            entered = 1;
+
+                            if (isFirst) {
+                                printf("Entity: %s\n", ent->name);
+                                isFirst = 0;
+                            }
+
+                            if (isFirstFirst) {
+                                printf ("   Name: %s, size: %d, hash: %d\n", rel->key, rel->val->size, hashCode(SIZE_INIT, rel->key));
+                                isFirstFirst = 0;
+                            }
+
+                            printf("      Rel: %s", rel->val->list[j]);
+                        }
+                    }
+
+                    if (!isFirstFirst) printf("\n");
+                    
+                    rel = rel->next;
+                }
+                break;
         }
-
-        printf("\n");
+        
+        if (entered) printf("\n");
     }
 }
 
@@ -325,10 +407,11 @@ static inline int parseInput(char *s, FILE *out) {
         temp[i] = 0;
         
         retval = delent(temp);
-
+        /*
         if (retval) {
             delentReport(report, temp);
         }
+        */
     }
 
     if (strcmp(temp, "delrel") == 0) {
@@ -390,8 +473,48 @@ static inline int parseInput(char *s, FILE *out) {
         return 10;
     }
 
-    if (strcmp(s, "print") == 0) {
-        printEntities();
+    if (strcmp(temp, "print") == 0) {
+        char filter[MAX_STR], filterType;
+
+        if (s[index + 1] == 0) {
+            printEntities("", 0);
+            return 6;
+        }
+
+        int space = 0;
+
+        do {
+            if (!space) {
+                if (s[index] != ' ') {
+                    filter[i] = s[index];
+                } else {
+                    space = 1;
+                    filter[i] = 0;
+                }
+            } else if (s[index] != ' ') {
+                switch (s[index]) {
+                    case '1':
+                        printEntities(filter, 1);
+                        return 6;
+
+                    case '2':
+                        printEntities(filter, 2);
+                        return 6;
+
+                    case '3':
+                        printEntities(filter, 3);
+                        return 6;
+
+                    default:
+                        printEntities("", 0);
+                        return 6;
+                }
+            }
+
+            i++;
+            index++;
+        } while (s[index] != 0);
+
         return 6;
     }
 

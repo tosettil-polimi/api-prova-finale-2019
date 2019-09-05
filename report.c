@@ -235,26 +235,6 @@ static inline void freeReport(struct Report *rep) {
     free(rep);
 }
 
-static inline char* itoa(int i, char b[]){
-    char const digit[] = "0123456789";
-    char* p = b;
-    if(i<0){
-        *p++ = '-';
-        i *= -1;
-    }
-    int shifter = i;
-    do{ //Move to where representation ends
-        ++p;
-        shifter = shifter/10;
-    }while(shifter);
-    *p = '\0';
-    do{ //Move back, inserting digits as u go
-        *--p = digit[i%10];
-        i = i/10;
-    }while(i);
-    return b;
-}
-
 static inline void printReportObject(struct ReportObject *rep, FILE *fp) {
     char c;
     int i = 0, j = 0;
@@ -284,17 +264,8 @@ static inline void printReportObject(struct ReportObject *rep, FILE *fp) {
         }
     }
 
-    char str[10];
-    itoa(rep->maxRelNum, str);
-    i = 1;
-
-    c = str[0];
-
-    while (c != 0) {
-        fputc(c, fp);
-        c = str[i];
-        i++;
-    }
-
+    fprintf(fp, "%d", rep->maxRelNum);
     fputc(';', fp);
 }
+
+struct Report *report;

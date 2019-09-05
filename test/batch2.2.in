@@ -95,6 +95,7 @@ addrel "Chell" "Jonathan_Archer" "older_than"
 addrel "Chell" "Jonathan_Archer" "older_than"
 addrel "Chell" "BEtor" "older_than"
 report
+print
 addrel "J_M_Colt" "BEtor" "older_than"
 addrel "Katrina_Cornwell" "Ayala" "older_than"
 report

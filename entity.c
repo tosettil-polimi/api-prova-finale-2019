@@ -134,6 +134,16 @@ static inline int deleteRelation(struct Entity *ent, char *name, char *rel) {
     return 0;
 }
 
+static inline void freeStringListReport(struct Report *rep, struct StringList *list, char *name) {
+    for (short i; i < list->size; i++) {
+        //printf("\tRimuovo %s => %s, size: %d\n", name, list->list[i], list->size);
+        removeReportComparsa(report, list->list[i], name);
+        free(list->list[i]);
+    }
+
+    free(list);
+}
+
 // cancella tutte le relazioni che ent ha con key (si usa con delent)
 static inline int deleteRelEntByName(struct Entity* ent, char *key) {
     int pos = hashCode(ent->relationships->size, key);
@@ -148,7 +158,7 @@ static inline int deleteRelEntByName(struct Entity* ent, char *key) {
             else
                 prec->next = node->next;
 
-            freeStringList(node->val);
+            freeStringListReport(report, node->val, node->key);
             free(node->key);
             free(node);
 
@@ -217,9 +227,12 @@ static inline void freeEntity(struct Entity *ent) {
             while (temp2) { // free of concatenated other relationships (same hash)
                 next = temp2->next;
 
+                for (j = 0; j < temp2->val->size; j++) { // free of every string in the list
+                    removeReportComparsa(report, temp2->val->list[j], temp2->key);
+                    free(temp2->val->list[j]);    
+                }
+                
                 free(temp2->key);
-                for (j = 0; j < temp2->val->size; j++) // free of every string in the list
-                    free(temp2->val->list[j]);
                 free(temp2->val->list); // free of the list
                 free(temp2->val);
                 free(temp2);
@@ -227,9 +240,13 @@ static inline void freeEntity(struct Entity *ent) {
                 temp2 = next;
             }
 
+            for (j = 0; j < temp->val->size; j++) { // free of every string in the list
+                removeReportComparsa(report, temp->val->list[j], temp->key);
+                //printf("\tRimuovo %s:%s => %s, size: %d\n", ent->name, temp->key, temp->val->list[j], temp->val->size);
+                free(temp->val->list[j]);                    
+            }
+            
             free(temp->key);
-            for (j = 0; j < temp->val->size; j++) // free of every string in the list
-                free(temp->val->list[j]);
             free(temp->val->list); // free of the list
             free(temp->val); // free of StringList val
 
