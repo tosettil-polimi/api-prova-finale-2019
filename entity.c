@@ -134,9 +134,8 @@ static inline int deleteRelation(struct Entity *ent, char *name, char *rel) {
     return 0;
 }
 
-static inline void freeStringListReport(struct Report *rep, struct StringList *list, char *name) {
+static inline void freeStringListReport(struct StringList *list, char *name) {
     for (short i; i < list->size; i++) {
-        //printf("\tRimuovo %s => %s, size: %d\n", name, list->list[i], list->size);
         removeReportComparsa(report, list->list[i], name);
         free(list->list[i]);
     }
@@ -158,7 +157,7 @@ static inline int deleteRelEntByName(struct Entity* ent, char *key) {
             else
                 prec->next = node->next;
 
-            freeStringListReport(report, node->val, node->key);
+            freeStringListReport(node->val, node->key);
             free(node->key);
             free(node);
 
@@ -242,7 +241,6 @@ static inline void freeEntity(struct Entity *ent) {
 
             for (j = 0; j < temp->val->size; j++) { // free of every string in the list
                 removeReportComparsa(report, temp->val->list[j], temp->key);
-                //printf("\tRimuovo %s:%s => %s, size: %d\n", ent->name, temp->key, temp->val->list[j], temp->val->size);
                 free(temp->val->list[j]);                    
             }
             

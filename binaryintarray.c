@@ -21,6 +21,22 @@ static inline int binaryAdd(int *v, int size, int val) {
     return size;
 }
 
+static inline int unsortedSearch(int *v, int size, int val) {
+    // Start searching from both ends 
+    int front = 0, back = size - 1; 
+  
+    // Keep searching while two indexes 
+    // do not cross. 
+    while (front <= back) {
+        if (v[front] == val) return front;
+        if (v[back] == val) return back;
+        front++; 
+        back--; 
+    }
+
+    return -1; 
+}
+
 static inline int binarySearch(int *v, int size, int val) {
     int l = 0, r = size - 1;
 

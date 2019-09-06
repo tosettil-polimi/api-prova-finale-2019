@@ -95,7 +95,6 @@ addrel "Chell" "Jonathan_Archer" "older_than"
 addrel "Chell" "Jonathan_Archer" "older_than"
 addrel "Chell" "BEtor" "older_than"
 report
-print
 addrel "J_M_Colt" "BEtor" "older_than"
 addrel "Katrina_Cornwell" "Ayala" "older_than"
 report
@@ -127,7 +126,12 @@ delrel "Jonathan_Archer" "Jonathan_Archer" "older_than"
 report
 delent "Chell"
 delrel "Reginald_Barclay" "BEtor" "older_than"
+print Airiam 1
+print Azan 2
+printreport
 delrel "Azan" "Airiam" "older_than"
+print Airiam 1
+printreport
 delent "Katrina_Cornwell"
 report
 delrel "RA_Bryce" "Jonathan_Archer" "older_than"

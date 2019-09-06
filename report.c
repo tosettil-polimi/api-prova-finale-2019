@@ -190,7 +190,7 @@ static inline int removeReportComparsa(struct Report *rep, char *relName, char *
     obj->numComparse[index]--;
 
     if ((obj->numComparse[index] + 1) == obj->maxRelNum) {
-        index = binarySearch(obj->numComparse, obj->names->size, obj->maxRelNum);
+        index = unsortedSearch(obj->numComparse, obj->names->size, obj->maxRelNum);
         if (index < 0) obj->maxRelNum--;
     }
 
@@ -266,6 +266,15 @@ static inline void printReportObject(struct ReportObject *rep, FILE *fp) {
 
     fprintf(fp, "%d", rep->maxRelNum);
     fputc(';', fp);
+}
+
+static inline void printReportDebug(struct Report *rep) {
+    for (int i = 0; i < rep->relationsNum; i++) {
+        printf("Relation: %s, max comparse: %d\n", rep->objects[i]->relName, rep->objects[i]->maxRelNum);
+        for (int j = 0; j < rep->objects[i]->names->size; j++) {
+            printf("\tNome: %s, comparse: %d\n", rep->objects[i]->names->list[j], rep->objects[i]->numComparse[j]);
+        }
+    }
 }
 
 struct Report *report;

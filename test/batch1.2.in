@@ -164,6 +164,7 @@ addrel "Ayala" "Airiam" "admirer"
 addrel "Ayala" "Ayala" "admirer"
 addrel "Ayala" "Ayala" "admirer"
 addrel "Ayala" "Reginald_Barclay" "admirer"
+printreport
 report
 addrel "Azan" "Jonathan_Archer" "admirer"
 report

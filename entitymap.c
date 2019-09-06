@@ -152,7 +152,7 @@ static inline int delrel(char *ent1, char *ent2, char *rel) {
         node = node->next;
     }
 
-    return -1;
+    return 0;
 }
 
 static inline void doReport(FILE *fp) {
@@ -516,6 +516,11 @@ static inline int parseInput(char *s, FILE *out) {
         } while (s[index] != 0);
 
         return 6;
+    }
+
+    if (strcmp(s, "printreport") == 0) {
+        printReportDebug(report);
+        return 7;
     }
 
     return 0;
