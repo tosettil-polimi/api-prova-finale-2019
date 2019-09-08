@@ -108,7 +108,8 @@ static inline int deleteRelation(struct Entity *ent, char *name, char *rel) {
 
     while (node) {
         if (strcmp(node->key, name) == 0) {
-            binaryStringListDelete(node->val, rel);
+            if (binaryStringListDelete(node->val, rel) < 0) return 0;
+
             node = ent->relationships->list[pos];
             
             if (node->val->size == 0) { // if is the last relation between the two entities

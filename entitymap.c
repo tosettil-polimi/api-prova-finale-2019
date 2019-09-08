@@ -389,7 +389,7 @@ static inline int parseInput(char *s, FILE *out) {
 
         retval = addrel(ent1, ent2, rel);
 
-        if (retval) {
+        if (retval > 0) {
             addReportComparsa(report, rel, ent2);
         }
     }
@@ -458,6 +458,7 @@ static inline int parseInput(char *s, FILE *out) {
         } while(s[index] != 0);
 
         retval = delrel(ent1, ent2, rel);
+        printf("retval delrel: %d\n", retval);
 
         if (retval) {
             removeReportComparsa(report, rel, ent2);

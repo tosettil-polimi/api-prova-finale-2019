@@ -153,10 +153,7 @@ delent "Donna_Noble"
 delrel "River_Song" "Akhaten" "kills"
 delrel "Janus" "Nardole" "fights"
 report
-printreport
-print Janus 2
 delent "Janus"
-printreport
 report
 delrel "Bill_Potts" "Boneless" "kills"
 delent "Queen_of_Years"

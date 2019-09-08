@@ -80,10 +80,11 @@ static inline int findReportObject(struct Report *rep, char *relName) {
 
 
 static inline void addComparsa(struct ReportObject *obj, char *name) {
-    int index = binaryStringListAdd(obj->names, name);
-    int i;
+    int index = binaryStringListSearch(obj->names, name);
     
-    if (index >= 0) {
+    if (index < 0) {
+        index = binaryStringListAdd(obj->names, name);
+
         if (obj->names->size == 1)
             obj->numComparse = (int*) malloc(sizeof(int));
         else
@@ -92,13 +93,12 @@ static inline void addComparsa(struct ReportObject *obj, char *name) {
         int prec = obj->numComparse[index], precPrec;
         obj->numComparse[index] = 1;
 
-        for (i = index; i < obj->names->size - 1; i++) {
+        for (short i = index; i < obj->names->size - 1; i++) {
             precPrec = obj->numComparse[i + 1];
             obj->numComparse[i + 1] = prec;
             prec = precPrec;
         }
     } else {
-        index = binaryStringListSearch(obj->names, name);
         obj->numComparse[index]++;
     }
 
