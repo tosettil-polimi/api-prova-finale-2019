@@ -1,3 +1,3 @@
 #!/bin/sh
-gcc release.c -o release
+gcc release.c -o rel
 exit 0
