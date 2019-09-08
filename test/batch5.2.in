@@ -275,12 +275,8 @@ delrel "BEtor" "BEtor" "aunt"
 delent "RA_Bryce"
 addent "Azan"
 report
-print Jonathan_Archer 1
-printreport
 delrel "Airiam" "Jonathan_Archer" "parent"
 addrel "Airiam" "Jonathan_Archer" "parent"
-print Jonathan_Archer 1
-printreport
 addent "Joseph_Carey"
 delrel "Phillip_Boyce" "Ayala" "uncle"
 delrel "Azan" "Jonathan_Archer" "parent"
