@@ -4,7 +4,7 @@
 #include <malloc.h>
 
 #define SIZE_INIT 50   // size of hashmap relationship
-#define SIZE_INIT_GENERAL 400 // size of entities hashmap
+#define SIZE_INIT_GENERAL 300 // size of entities hashmap
 #define MAX_STR 33      // max size for strings
 #define MAX_RELATION 15 //max relations present
 
@@ -269,10 +269,11 @@ static inline int findReportObject(struct Report *rep, char *relName) {
 
 
 static inline void addComparsa(struct ReportObject *obj, char *name) {
-    int index = binaryStringListAdd(obj->names, name);
-    int i;
+    int index = binaryStringListSearch(obj->names, name);
     
-    if (index >= 0) {
+    if (index < 0) {
+        index = binaryStringListAdd(obj->names, name);
+
         if (obj->names->size == 1)
             obj->numComparse = (int*) malloc(sizeof(int));
         else
@@ -281,13 +282,12 @@ static inline void addComparsa(struct ReportObject *obj, char *name) {
         int prec = obj->numComparse[index], precPrec;
         obj->numComparse[index] = 1;
 
-        for (i = index; i < obj->names->size - 1; i++) {
+        for (short i = index; i < obj->names->size - 1; i++) {
             precPrec = obj->numComparse[i + 1];
             obj->numComparse[i + 1] = prec;
             prec = precPrec;
         }
     } else {
-        index = binaryStringListSearch(obj->names, name);
         obj->numComparse[index]++;
     }
 
@@ -568,7 +568,8 @@ static inline int deleteRelation(struct Entity *ent, char *name, char *rel) {
 
     while (node) {
         if (strcmp(node->key, name) == 0) {
-            binaryStringListDelete(node->val, rel);
+            if (binaryStringListDelete(node->val, rel) < 0) return 0;
+
             node = ent->relationships->list[pos];
             
             if (node->val->size == 0) { // if is the last relation between the two entities
@@ -831,12 +832,10 @@ static inline int addent(char *name) {
 static inline void deleteDependencies(char *name) {
     struct EntityNode *node;
     int i;
-    
-    //if (strcmp(name, "Elizabeth_Cutler") == 0) printf("e->indexesSize: %d\n", e->indexesSize);
 
     for (i = 0; i < e->indexesSize; i++) {
         node = e->list[e->indexes[i]];
-        //if (strcmp(name, "Elizabeth_Cutler") == 0) printf("e->indexes[%d]: %ld\n", i, e->indexes[i]);
+        
         while (node) {
             struct Entity *ent = node->kv;
             deleteRelEntByName(ent, name);
@@ -1061,11 +1060,6 @@ static inline int parseInput(char *s, FILE *out) {
         temp[i] = 0;
         
         retval = delent(temp);
-        /*
-        if (retval) {
-            delentReport(report, temp);
-        }
-        */
     }
 
     if (strcmp(temp, "delrel") == 0) {

@@ -1,6 +1,7 @@
 main
 entity
 rep
+rel
 valgrind.out
 output.txt
 .vscode/*

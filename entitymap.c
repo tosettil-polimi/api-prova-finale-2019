@@ -64,12 +64,10 @@ static inline int addent(char *name) {
 static inline void deleteDependencies(char *name) {
     struct EntityNode *node;
     int i;
-    
-    //if (strcmp(name, "Elizabeth_Cutler") == 0) printf("e->indexesSize: %d\n", e->indexesSize);
 
     for (i = 0; i < e->indexesSize; i++) {
         node = e->list[e->indexes[i]];
-        //if (strcmp(name, "Elizabeth_Cutler") == 0) printf("e->indexes[%d]: %ld\n", i, e->indexes[i]);
+        
         while (node) {
             struct Entity *ent = node->kv;
             deleteRelEntByName(ent, name);
@@ -407,11 +405,6 @@ static inline int parseInput(char *s, FILE *out) {
         temp[i] = 0;
         
         retval = delent(temp);
-        /*
-        if (retval) {
-            delentReport(report, temp);
-        }
-        */
     }
 
     if (strcmp(temp, "delrel") == 0) {
