@@ -27,15 +27,16 @@ static inline int binaryStringListAdd(struct StringList *list, char *str) {
             list->size++;
             
 
-            char prec[MAX_STR], temp[MAX_STR];
+            char *prec, *temp;
+            temp = (char*) malloc(sizeof(char) * MAX_STR);
             strcpy(temp, str);
 
             added = 1;
 
             for (j = i; j < list->size; j++) {
-                strcpy(prec, list->list[j]);
-                strcpy(list->list[j], temp);
-                strcpy(temp, prec);
+                prec = list->list[j];
+                list->list[j] = temp;
+                temp = prec;
             }
 
             break;
@@ -459,7 +460,6 @@ static inline void printReportObject(struct ReportObject *rep, FILE *fp) {
 
 struct Report *report;
 
-
 struct RelationshipsNode {
     char *key;
     struct StringList *val;
@@ -596,7 +596,7 @@ static inline int deleteRelation(struct Entity *ent, char *name, char *rel) {
 }
 
 static inline void freeStringListReport(struct StringList *list, char *name) {
-    for (short i; i < list->size; i++) {
+    for (short i = 0; i < list->size; i++) {
         removeReportComparsa(report, list->list[i], name);
         free(list->list[i]);
     }
