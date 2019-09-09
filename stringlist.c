@@ -19,15 +19,16 @@ static inline int binaryStringListAdd(struct StringList *list, char *str) {
             list->size++;
             
 
-            char prec[MAX_STR], temp[MAX_STR];
+            char *prec, *temp;
+            temp = (char*) malloc(sizeof(char) * MAX_STR);
             strcpy(temp, str);
 
             added = 1;
 
             for (j = i; j < list->size; j++) {
-                strcpy(prec, list->list[j]);
-                strcpy(list->list[j], temp);
-                strcpy(temp, prec);
+                prec = list->list[j];
+                list->list[j] = temp;
+                temp = prec;
             }
 
             break;
