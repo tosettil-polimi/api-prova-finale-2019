@@ -136,7 +136,7 @@ static inline int deleteRelation(struct Entity *ent, char *name, char *rel) {
 }
 
 static inline void freeStringListReport(struct StringList *list, char *name) {
-    for (short i; i < list->size; i++) {
+    for (short i = 0; i < list->size; i++) {
         removeReportComparsa(report, list->list[i], name);
         free(list->list[i]);
     }
