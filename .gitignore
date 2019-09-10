@@ -6,3 +6,4 @@ valgrind.out
 output.txt
 .vscode/*
 .idea/*
+.test_completi/*

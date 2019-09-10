@@ -15,7 +15,7 @@ struct Entities {
 };
 
 static inline struct Entities *createEntities() {
-    struct Entities *e = (struct Entities*) malloc(sizeof(struct Entities));
+    struct Entities *e = (struct Entities*) calloc(1, sizeof(struct Entities));
     
     e->size = SIZE_INIT_GENERAL;
     e->indexesSize = 0;
@@ -306,7 +306,7 @@ static inline void readline(char *str, FILE *fp) {
         str[i] = c;
         i++;
         fputc(c, stdout);
-    } while (c != '\n' && i < 130);
+    } while (c != '\n' && c != '\r' && c != 0);
 
     str[i - 1] = 0;
 }
@@ -321,7 +321,6 @@ static inline int parseInput(char *s, FILE *out) {
     }
 
     temp[index] = 0;
-    if (index >= 129) return 10;
 
     index += 1;
     int nQuot = 0, retval;
@@ -534,4 +533,6 @@ void main() {
         readline(input, stdin);
         stop = parseInput(input, fp);
     } while (stop != 10);
+
+    fclose(fp);
 }

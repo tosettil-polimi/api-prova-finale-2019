@@ -783,7 +783,7 @@ struct Entities {
 };
 
 static inline struct Entities *createEntities() {
-    struct Entities *e = (struct Entities*) malloc(sizeof(struct Entities));
+    struct Entities *e = (struct Entities*) calloc(1, sizeof(struct Entities));
     
     e->size = SIZE_INIT_GENERAL;
     e->indexesSize = 0;
@@ -845,12 +845,14 @@ static inline void deleteDependencies(char *name) {
 }
 
 static inline int delent(char *name) {
+    printf("name: %s\n", name);
     int pos = hashCode(e->size, name);
 
     struct EntityNode *node = e->list[pos];
     struct EntityNode *prec = node;
 
     while (node) {
+        printf("%s, %p\n", name, node);
         if (strcmp(node->kv->name, name) == 0) {
             deleteDependencies(name);
 
@@ -961,7 +963,7 @@ static inline void readline(char *str, FILE *fp) {
         c = fgetc(fp);
         str[i] = c;
         i++;
-    } while (c != '\n' && i < 130);
+    } while (c != '\n');
 
     str[i - 1] = 0;
 }
@@ -976,7 +978,6 @@ static inline int parseInput(char *s, FILE *out) {
     }
 
     temp[index] = 0;
-    if (index >= 129) return 10;
 
     index += 1;
     int nQuot = 0, retval;
@@ -1060,6 +1061,7 @@ static inline int parseInput(char *s, FILE *out) {
         
         temp[i] = 0;
         
+        printf("temp: %s\n", temp);
         retval = delent(temp);
     }
 
