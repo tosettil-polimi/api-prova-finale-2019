@@ -116,6 +116,7 @@ static inline void freeStringList(struct StringList *list) {
         free(list->list[i]);
     }
 
+    free(list->list);
     free(list);
 }
 static inline int binaryAdd(int *v, int size, int val) {
@@ -845,14 +846,12 @@ static inline void deleteDependencies(char *name) {
 }
 
 static inline int delent(char *name) {
-    printf("name: %s\n", name);
     int pos = hashCode(e->size, name);
 
     struct EntityNode *node = e->list[pos];
     struct EntityNode *prec = node;
 
     while (node) {
-        printf("%s, %p\n", name, node);
         if (strcmp(node->kv->name, name) == 0) {
             deleteDependencies(name);
 
@@ -898,7 +897,7 @@ static inline struct Entity *getEntityByName(char *name) {
 static inline int addrel(char *ent1, char *ent2, char *rel) {
     struct Entity *ent = getEntityByName(ent1);
 
-    if(e->list[hashCode(e->size, ent2)] == NULL) return -2;
+    if(getEntityByName(ent2) == NULL) return -2;
     
     int retval = insertRelationEntity(ent, ent2, rel);
     
@@ -963,14 +962,14 @@ static inline void readline(char *str, FILE *fp) {
         c = fgetc(fp);
         str[i] = c;
         i++;
-    } while (c != '\n');
+    } while (c != '\n' && c != '\r' && c != 0);
 
     str[i - 1] = 0;
 }
 
 static inline int parseInput(char *s, FILE *out) {
     int index = 0, i = 0;
-    char temp[MAX_STR];
+    char temp[130];
     
     while (s[index] != ' ' && s[index] != 0) {  
         temp[index] = s[index];
@@ -1061,7 +1060,6 @@ static inline int parseInput(char *s, FILE *out) {
         
         temp[i] = 0;
         
-        printf("temp: %s\n", temp);
         retval = delent(temp);
     }
 
