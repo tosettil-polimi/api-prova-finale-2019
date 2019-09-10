@@ -306,14 +306,14 @@ static inline void readline(char *str, FILE *fp) {
         str[i] = c;
         i++;
         fputc(c, stdout);
-    } while (c != '\n');
+    } while (c != '\n' && i < 130);
 
     str[i - 1] = 0;
 }
 
 static inline int parseInput(char *s, FILE *out) {
     int index = 0, i = 0;
-    char temp[MAX_STR];
+    char temp[130];
     
     while (s[index] != ' ' && s[index] != 0) {  
         temp[index] = s[index];
@@ -321,6 +321,7 @@ static inline int parseInput(char *s, FILE *out) {
     }
 
     temp[index] = 0;
+    if (index >= 129) return 10;
 
     index += 1;
     int nQuot = 0, retval;
