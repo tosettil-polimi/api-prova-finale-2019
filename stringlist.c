@@ -108,5 +108,6 @@ static inline void freeStringList(struct StringList *list) {
         free(list->list[i]);
     }
 
+    free(list->list);
     free(list);
 }

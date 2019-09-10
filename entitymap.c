@@ -128,7 +128,7 @@ static inline struct Entity *getEntityByName(char *name) {
 static inline int addrel(char *ent1, char *ent2, char *rel) {
     struct Entity *ent = getEntityByName(ent1);
 
-    if(e->list[hashCode(e->size, ent2)] == NULL) return -2;
+    if(getEntityByName(ent2) == NULL) return -2;
     
     int retval = insertRelationEntity(ent, ent2, rel);
     
@@ -193,60 +193,22 @@ static inline void printEntities(char *filter, int filterType) {
     int i, j, isFirst;
 
     for (i = 0; i < e->indexesSize; i++) {
-        int entered = 0;
-        struct Entity *ent = e->list[e->indexes[i]]->kv;
-        struct RelationshipsNode *rel;
-        
-        rel = NULL;
-        
-        if (ent->relationships != NULL) rel = relationshipsToArray(ent->relationships);
+        struct EntityNode *entNode = e->list[e->indexes[i]];
 
-        switch (filterType) {
-            case 0:
-                printf("Entity: %s\n", ent->name);
-                entered = 1;
+        while (entNode) {
+            int entered = 0;
+            struct Entity *ent = entNode->kv;
 
-                while (rel) {
-                    printf ("   Name: %s, size: %d, hash: %d\n", rel->key, rel->val->size, hashCode(SIZE_INIT, rel->key));
+            struct RelationshipsNode *rel;
+            
+            rel = NULL;
+            
+            if (ent->relationships != NULL) rel = relationshipsToArray(ent->relationships);
 
-                    for (j = 0; j < rel->val->size; j++) {
-                        printf("      Rel: %s", rel->val->list[j]);
-                    }
-
-                    printf("\n");
-
-                    rel = rel->next;
-                }
-                break;
-
-            case 1:
-                isFirst = 1;
-
-                while (rel) {
-                    if (strcmp(rel->key, filter) == 0) {
-                        entered = 1;
-                        if (isFirst) {
-                            printf("Entity: %s\n", ent->name);
-                            isFirst = 0;
-                        }
-
-                        printf ("   Name: %s, size: %d, hash: %d\n", rel->key, rel->val->size, hashCode(SIZE_INIT, rel->key));
-
-                        for (j = 0; j < rel->val->size; j++) {
-                            printf("      Rel: %s", rel->val->list[j]);
-                        }
-
-                        printf("\n");
-                    }
-
-                    rel = rel->next;
-                }
-                break;
-
-            case 2:
-                if (strcmp(ent->name, filter) == 0) {           
-                    entered = 1;         
+            switch (filterType) {
+                case 0:
                     printf("Entity: %s\n", ent->name);
+                    entered = 1;
 
                     while (rel) {
                         printf ("   Name: %s, size: %d, hash: %d\n", rel->key, rel->val->size, hashCode(SIZE_INIT, rel->key));
@@ -259,41 +221,86 @@ static inline void printEntities(char *filter, int filterType) {
 
                         rel = rel->next;
                     }
-                }
-                break;
+                    break;
 
-            case 3:
-                isFirst = 1;
+                case 1:
+                    isFirst = 1;
 
-                while (rel) {
-                    int isFirstFirst = 1;
-                    
-                    for (j = 0; j < rel->val->size; j++) {
-                        if (strcpy(rel->val->list[j], filter) == 0) {
+                    while (rel) {
+                        if (strcmp(rel->key, filter) == 0) {
                             entered = 1;
-
                             if (isFirst) {
                                 printf("Entity: %s\n", ent->name);
                                 isFirst = 0;
                             }
 
-                            if (isFirstFirst) {
-                                printf ("   Name: %s, size: %d, hash: %d\n", rel->key, rel->val->size, hashCode(SIZE_INIT, rel->key));
-                                isFirstFirst = 0;
+                            printf ("   Name: %s, size: %d, hash: %d\n", rel->key, rel->val->size, hashCode(SIZE_INIT, rel->key));
+
+                            for (j = 0; j < rel->val->size; j++) {
+                                printf("      Rel: %s", rel->val->list[j]);
                             }
 
-                            printf("      Rel: %s", rel->val->list[j]);
+                            printf("\n");
+                        }
+
+                        rel = rel->next;
+                    }
+                    break;
+
+                case 2:
+                    if (strcmp(ent->name, filter) == 0) {           
+                        entered = 1;         
+                        printf("Entity: %s\n", ent->name);
+
+                        while (rel) {
+                            printf ("   Name: %s, size: %d, hash: %d\n", rel->key, rel->val->size, hashCode(SIZE_INIT, rel->key));
+
+                            for (j = 0; j < rel->val->size; j++) {
+                                printf("      Rel: %s", rel->val->list[j]);
+                            }
+
+                            printf("\n");
+
+                            rel = rel->next;
                         }
                     }
+                    break;
 
-                    if (!isFirstFirst) printf("\n");
-                    
-                    rel = rel->next;
-                }
-                break;
+                case 3:
+                    isFirst = 1;
+
+                    while (rel) {
+                        int isFirstFirst = 1;
+                        
+                        for (j = 0; j < rel->val->size; j++) {
+                            if (strcpy(rel->val->list[j], filter) == 0) {
+                                entered = 1;
+
+                                if (isFirst) {
+                                    printf("Entity: %s\n", ent->name);
+                                    isFirst = 0;
+                                }
+
+                                if (isFirstFirst) {
+                                    printf ("   Name: %s, size: %d, hash: %d\n", rel->key, rel->val->size, hashCode(SIZE_INIT, rel->key));
+                                    isFirstFirst = 0;
+                                }
+
+                                printf("      Rel: %s", rel->val->list[j]);
+                            }
+                        }
+
+                        if (!isFirstFirst) printf("\n");
+                        
+                        rel = rel->next;
+                    }
+                    break;
+            }
+            
+            if (entered) printf("\n");
+
+            entNode = entNode->next;
         }
-        
-        if (entered) printf("\n");
     }
 }
 
@@ -469,7 +476,7 @@ static inline int parseInput(char *s, FILE *out) {
     if (strcmp(temp, "print") == 0) {
         char filter[MAX_STR], filterType;
 
-        if (s[index + 1] == 0) {
+        if (s[index - 1] == 0) {
             printEntities("", 0);
             return 6;
         }
