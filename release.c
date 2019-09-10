@@ -1,7 +1,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
 
 #define SIZE_INIT 15   // size of hashmap relationship
 #define SIZE_INIT_GENERAL 120 // size of entities hashmap
@@ -57,6 +56,44 @@ static inline int binaryStringListAdd(struct StringList *list, char *str) {
     return i;
 }
 
+static inline int binaryStringListAddSame(struct StringList *list, char *str) {
+    int added = 0, cmp, i, j;
+
+    for (i = 0; i < list->size; i++) {
+        cmp = strcmp(str, list->list[i]);
+
+        if (cmp < 0) {
+
+            list->list = (char**) realloc(list->list, (list->size + 1 ) * sizeof(char*));
+            list->size++;
+            
+            char *prec, *temp;
+            temp = str;
+
+            added = 1;
+
+            for (j = i; j < list->size; j++) {
+                prec = list->list[j];
+                list->list[j] = temp;
+                temp = prec;
+            }
+
+            break;
+        } else if (cmp == 0) { // already present
+            return -2;
+        }
+    }
+
+    if (!added) {
+        if (list->list == NULL) list->list = (char**) malloc(sizeof(char*));
+        else list->list = (char**) realloc(list->list, (list->size + 1 ) * sizeof(char*));
+
+        list->list[list->size] = str;
+        list->size++;
+    }
+
+    return i;
+}
 
 static inline int binaryStringListSearch(struct StringList *list, char *str) {
     int l = 0, r = list->size - 1;
@@ -87,11 +124,27 @@ static inline int binaryStringListDelete(struct StringList *list, char *str) {
 
     if (index < 0) 
         return -1;
+
+    free(list->list[index]);
     
     for (short i = index; i < list->size - 1; i++)
-        strcpy(list->list[i], list->list[i+1]);
+        list->list[i] = list->list[i+1];
 
-    free(list->list[(list->size) - 1]);
+    list->size--;
+    list->list = (char**) realloc(list->list, list->size * sizeof(char*));
+
+    return index;
+}
+
+static inline int binaryStringListDeleteSame(struct StringList *list, char *str) {
+    int index = binaryStringListSearch(list, str);
+
+    if (index < 0) 
+        return -1;
+    
+    for (short i = index; i < list->size - 1; i++)
+        list->list[i] = list->list[i+1];
+
     list->size--;
 
     list->list = (char**) realloc(list->list, list->size * sizeof(char*));
@@ -116,6 +169,11 @@ static inline void freeStringList(struct StringList *list) {
         free(list->list[i]);
     }
 
+    free(list->list);
+    free(list);
+}
+
+static inline void freeStringListSame(struct StringList *list) {
     free(list->list);
     free(list);
 }
@@ -274,7 +332,7 @@ static inline void addComparsa(struct ReportObject *obj, char *name) {
     int index = binaryStringListSearch(obj->names, name);
     
     if (index < 0) {
-        index = binaryStringListAdd(obj->names, name);
+        index = binaryStringListAddSame(obj->names, name);
 
         if (obj->names->size == 1)
             obj->numComparse = (int*) malloc(sizeof(int));
@@ -330,7 +388,7 @@ static inline int addReportComparsa(struct Report *rep, char *relName, char *nam
 }
 
 static inline void freeReportObject(struct ReportObject *rep) {
-    freeStringList(rep->names);
+    freeStringListSame(rep->names);
     free(rep->numComparse);
     free(rep);
 }
@@ -364,12 +422,11 @@ static inline int removeReportComparsa(struct Report *rep, char *relName, char *
     if (obj->numComparse[index] == 1) { // only one relation, time to delete the name from the report object
         for (short i = index; i < obj->names->size - 1; i++) {
             obj->numComparse[i] = obj->numComparse[i + 1];
-            strcpy(obj->names->list[i], obj->names->list[i + 1]); // TODO: check if is possible to do assignment
+            obj->names->list[i] = obj->names->list[i + 1]; // TODO: check if is possible to do assignment
         }
         
-        obj->numComparse = (int*) realloc(obj->numComparse, sizeof(int) * (obj->names->size - 1));
-        free(obj->names->list[(obj->names->size) - 1]);
         obj->names->size--;
+        obj->numComparse = (int*) realloc(obj->numComparse, sizeof(int) * (obj->names->size));
 
         if (obj->names->size == 0) {
             deleteReportObject(rep, relName);
@@ -386,36 +443,6 @@ static inline int removeReportComparsa(struct Report *rep, char *relName, char *
     }
 
     return 2;
-}
-
-// maybe not to use
-static inline void delentReport(struct Report *rep, char *name) {
-    for (short i = 0; i < rep->relationsNum; i++) {
-        struct ReportObject *obj = rep->objects[i];
-
-        int index = binaryStringListSearch(obj->names, name);
-
-        if(index >= 0) {
-            int numComparse = obj->numComparse[index];
-
-            for (short j = index; j < obj->names->size - 1; j++) {
-                strcpy(obj->names->list[j], obj->names->list[j + 1]);
-                obj->numComparse[j] = obj->numComparse[j + 1];
-            }
-
-            obj->names->size--;
-
-            if (obj->names->size == 0) {
-                deleteReportObject(rep, obj->relName);
-                continue;
-            }
-
-            if (numComparse == obj->maxRelNum) {                
-                index = binarySearch(obj->numComparse, obj->names->size, obj->maxRelNum);
-                if (index < 0) obj->maxRelNum--;
-            }
-        }
-    }
 }
 
 static inline void freeReport(struct Report *rep) {
@@ -1044,7 +1071,7 @@ static inline int parseInput(char *s, FILE *out) {
         retval = addrel(ent1, ent2, rel);
 
         if (retval > 0) {
-            addReportComparsa(report, rel, ent2);
+            addReportComparsa(report, rel, getEntityByName(ent2)->name);
         }
     }
 
