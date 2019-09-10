@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <malloc.h>
 
-#define SIZE_INIT 50   // size of hashmap relationship
-#define SIZE_INIT_GENERAL 300 // size of entities hashmap
+#define SIZE_INIT 15   // size of hashmap relationship
+#define SIZE_INIT_GENERAL 120 // size of entities hashmap
 #define MAX_STR 33      // max size for strings
 #define MAX_RELATION 15 //max relations present
 

@@ -49,6 +49,44 @@ static inline int binaryStringListAdd(struct StringList *list, char *str) {
     return i;
 }
 
+static inline int binaryStringListAddSame(struct StringList *list, char *str) {
+    int added = 0, cmp, i, j;
+
+    for (i = 0; i < list->size; i++) {
+        cmp = strcmp(str, list->list[i]);
+
+        if (cmp < 0) {
+
+            list->list = (char**) realloc(list->list, (list->size + 1 ) * sizeof(char*));
+            list->size++;
+            
+            char *prec, *temp;
+            temp = str;
+
+            added = 1;
+
+            for (j = i; j < list->size; j++) {
+                prec = list->list[j];
+                list->list[j] = temp;
+                temp = prec;
+            }
+
+            break;
+        } else if (cmp == 0) { // already present
+            return -2;
+        }
+    }
+
+    if (!added) {
+        if (list->list == NULL) list->list = (char**) malloc(sizeof(char*));
+        else list->list = (char**) realloc(list->list, (list->size + 1 ) * sizeof(char*));
+
+        list->list[list->size] = str;
+        list->size++;
+    }
+
+    return i;
+}
 
 static inline int binaryStringListSearch(struct StringList *list, char *str) {
     int l = 0, r = list->size - 1;
@@ -79,11 +117,27 @@ static inline int binaryStringListDelete(struct StringList *list, char *str) {
 
     if (index < 0) 
         return -1;
+
+    free(list->list[index]);
     
     for (short i = index; i < list->size - 1; i++)
-        strcpy(list->list[i], list->list[i+1]);
+        list->list[i] = list->list[i+1];
 
-    free(list->list[(list->size) - 1]);
+    list->size--;
+    list->list = (char**) realloc(list->list, list->size * sizeof(char*));
+
+    return index;
+}
+
+static inline int binaryStringListDeleteSame(struct StringList *list, char *str) {
+    int index = binaryStringListSearch(list, str);
+
+    if (index < 0) 
+        return -1;
+    
+    for (short i = index; i < list->size - 1; i++)
+        list->list[i] = list->list[i+1];
+
     list->size--;
 
     list->list = (char**) realloc(list->list, list->size * sizeof(char*));
@@ -108,6 +162,11 @@ static inline void freeStringList(struct StringList *list) {
         free(list->list[i]);
     }
 
+    free(list->list);
+    free(list);
+}
+
+static inline void freeStringListSame(struct StringList *list) {
     free(list->list);
     free(list);
 }

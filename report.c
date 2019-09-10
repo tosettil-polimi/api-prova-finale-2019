@@ -83,7 +83,7 @@ static inline void addComparsa(struct ReportObject *obj, char *name) {
     int index = binaryStringListSearch(obj->names, name);
     
     if (index < 0) {
-        index = binaryStringListAdd(obj->names, name);
+        index = binaryStringListAddSame(obj->names, name);
 
         if (obj->names->size == 1)
             obj->numComparse = (int*) malloc(sizeof(int));
@@ -139,7 +139,7 @@ static inline int addReportComparsa(struct Report *rep, char *relName, char *nam
 }
 
 static inline void freeReportObject(struct ReportObject *rep) {
-    freeStringList(rep->names);
+    freeStringListSame(rep->names);
     free(rep->numComparse);
     free(rep);
 }
@@ -173,12 +173,11 @@ static inline int removeReportComparsa(struct Report *rep, char *relName, char *
     if (obj->numComparse[index] == 1) { // only one relation, time to delete the name from the report object
         for (short i = index; i < obj->names->size - 1; i++) {
             obj->numComparse[i] = obj->numComparse[i + 1];
-            strcpy(obj->names->list[i], obj->names->list[i + 1]); // TODO: check if is possible to do assignment
+            obj->names->list[i] = obj->names->list[i + 1]; // TODO: check if is possible to do assignment
         }
         
-        obj->numComparse = (int*) realloc(obj->numComparse, sizeof(int) * (obj->names->size - 1));
-        free(obj->names->list[(obj->names->size) - 1]);
         obj->names->size--;
+        obj->numComparse = (int*) realloc(obj->numComparse, sizeof(int) * (obj->names->size));
 
         if (obj->names->size == 0) {
             deleteReportObject(rep, relName);
@@ -195,36 +194,6 @@ static inline int removeReportComparsa(struct Report *rep, char *relName, char *
     }
 
     return 2;
-}
-
-// maybe not to use
-static inline void delentReport(struct Report *rep, char *name) {
-    for (short i = 0; i < rep->relationsNum; i++) {
-        struct ReportObject *obj = rep->objects[i];
-
-        int index = binaryStringListSearch(obj->names, name);
-
-        if(index >= 0) {
-            int numComparse = obj->numComparse[index];
-
-            for (short j = index; j < obj->names->size - 1; j++) {
-                strcpy(obj->names->list[j], obj->names->list[j + 1]);
-                obj->numComparse[j] = obj->numComparse[j + 1];
-            }
-
-            obj->names->size--;
-
-            if (obj->names->size == 0) {
-                deleteReportObject(rep, obj->relName);
-                continue;
-            }
-
-            if (numComparse == obj->maxRelNum) {                
-                index = binarySearch(obj->numComparse, obj->names->size, obj->maxRelNum);
-                if (index < 0) obj->maxRelNum--;
-            }
-        }
-    }
 }
 
 static inline void freeReport(struct Report *rep) {
