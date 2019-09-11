@@ -5,6 +5,50 @@ struct StringList {
     char **list;
 };
 
+static inline int binaryStringListAddSearch(struct StringList *list, char *str) {
+    int added = 0, cmp, i, j;
+
+    for (i = 0; i < list->size; i++) {
+        cmp = strcmp(str, list->list[i]);
+
+        if (cmp < 0) {
+
+            list->list = (char**) realloc(list->list, (list->size + 1 ) * sizeof(char*));
+            
+            list->list[list->size] = (char*) malloc(sizeof(char) * MAX_STR);
+            list->size++;
+            
+
+            char *prec, *temp;
+            temp = (char*) malloc(sizeof(char) * MAX_STR);
+            strcpy(temp, str);
+
+            added = 1;
+
+            for (j = i; j < list->size; j++) {
+                prec = list->list[j];
+                list->list[j] = temp;
+                temp = prec;
+            }
+
+            break;
+        } else if (cmp == 0) { // already present
+            return i;
+        }
+    }
+
+    if (!added) {
+        if (list->list == NULL) list->list = (char**) malloc(sizeof(char*));
+        else list->list = (char**) realloc(list->list, (list->size + 1 ) * sizeof(char*));
+
+        list->list[list->size] = (char*) malloc(sizeof(char) * MAX_STR);
+        strcpy(list->list[list->size], str);
+        list->size++;
+    }
+
+    return i;
+}
+
 static inline int binaryStringListAdd(struct StringList *list, char *str) {
     int added = 0, cmp, i, j;
 

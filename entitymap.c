@@ -12,11 +12,13 @@ struct Entities {
     int indexes[SIZE_INIT_GENERAL]; // list of used hashes (indexes of list)
     int indexesSize;
     struct EntityNode *list[SIZE_INIT_GENERAL];
+    struct StringList *relations;
 };
 
 static inline struct Entities *createEntities() {
     struct Entities *e = (struct Entities*) calloc(1, sizeof(struct Entities));
     
+    e->relations = createStringList();
     e->size = SIZE_INIT_GENERAL;
     e->indexesSize = 0;
 
@@ -129,8 +131,10 @@ static inline int addrel(char *ent1, char *ent2, char *rel) {
     struct Entity *ent = getEntityByName(ent1);
 
     if(getEntityByName(ent2) == NULL) return -2;
+
+    int index = binaryStringListAddSearch(e->relations, rel);
     
-    int retval = insertRelationEntity(ent, ent2, rel);
+    int retval = insertRelationEntity(ent, ent2, e->relations->list[index]);
     
     if (retval == -2)
         return -4;
@@ -183,6 +187,9 @@ static inline void freeEntities() {
             node = temp;
         }
     }
+
+    freeStringList(e->relations);
+    free(e);
 }
 
 // filterType: 0 => no filter
@@ -540,6 +547,6 @@ void main() {
         readline(input, stdin);
         stop = parseInput(input, fp);
     } while (stop != 10);
-
+    
     fclose(fp);
 }
