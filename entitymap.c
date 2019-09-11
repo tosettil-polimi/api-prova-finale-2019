@@ -129,12 +129,13 @@ static inline struct Entity *getEntityByName(char *name) {
 
 static inline int addrel(char *ent1, char *ent2, char *rel) {
     struct Entity *ent = getEntityByName(ent1);
+    struct Entity *enti2 = getEntityByName(ent2);
 
-    if(getEntityByName(ent2) == NULL) return -2;
+    if(enti2 == NULL) return -2;
 
     int index = binaryStringListAddSearch(e->relations, rel);
     
-    int retval = insertRelationEntity(ent, ent2, e->relations->list[index]);
+    int retval = insertRelationEntity(ent, enti2->name, e->relations->list[index]);
     
     if (retval == -2)
         return -4;
