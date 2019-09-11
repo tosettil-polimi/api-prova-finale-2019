@@ -25,7 +25,7 @@ static inline int unsortedSearch(int *v, int size, int val) {
     // Start searching from both ends 
     int front = 0, back = size - 1; 
   
-    // Keep searching while two indexes 
+    // Keep searching while two indexes
     // do not cross. 
     while (front <= back) {
         if (v[front] == val) return front;

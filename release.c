@@ -248,7 +248,7 @@ static inline int unsortedSearch(int *v, int size, int val) {
     // Start searching from both ends 
     int front = 0, back = size - 1; 
   
-    // Keep searching while two indexes 
+    // Keep searching while two indexes
     // do not cross. 
     while (front <= back) {
         if (v[front] == val) return front;
@@ -293,6 +293,7 @@ static inline int binaryDelete(int *v, int size, int val) {
 
     return 1;
 }
+
 struct Report {
     struct ReportObject *objects[MAX_RELATION];
     int relationsNum;
@@ -592,8 +593,7 @@ static inline int insertRelationEntity(struct Entity *ent, char *key, char *rela
     if (lastNode == NULL) { // no collisioni, inserisco nella lista principale della hash
         lastNode = (struct RelationshipsNode*) malloc(sizeof(struct RelationshipsNode)); // dovrebbe essere uno nuovo, ma risparmio qualcosa di mem
 
-        lastNode->key = (char*) malloc(sizeof(char) * MAX_STR);
-        strcpy(lastNode->key, key);
+        lastNode->key = key;
 
         lastNode->val = createStringList();
         binaryStringListAddSame(lastNode->val, relation);
@@ -607,8 +607,7 @@ static inline int insertRelationEntity(struct Entity *ent, char *key, char *rela
     } else { // hash collision, inserisco in coda al nodo con stesso hash
         lastNode->next = (struct RelationshipsNode*) malloc(sizeof(struct RelationshipsNode));
 
-        lastNode->next->key = (char*) malloc(sizeof(char) * MAX_STR);;
-        strcpy(lastNode->next->key, key);
+        lastNode->next->key = key;
 
         lastNode->next->val = createStringList();
         binaryStringListAddSame(lastNode->next->val, relation);
@@ -645,7 +644,6 @@ static inline int deleteRelation(struct Entity *ent, char *name, char *rel) {
             
             if (node->val->size == 0) { // if is the last relation between the two entities
                 freeStringListSame(node->val);
-                free(node->key);
                 
                 ent->relationships->list[pos] = node->next;
 
@@ -688,7 +686,6 @@ static inline int deleteRelEntByName(struct Entity* ent, char *key) {
                 prec->next = node->next;
 
             freeStringListReport(node->val, node->key);
-            free(node->key);
             free(node);
 
             if (!ent->relationships->list[pos]) {
@@ -706,14 +703,6 @@ static inline int deleteRelEntByName(struct Entity* ent, char *key) {
     return 0;
 }
 
-static inline void addRelation(struct Entity *ent, char *key, char *entity) {
-    struct StringList *list = getRelationsByKey(ent, key);
-
-    if (list != NULL) {
-
-    }
-}
-
 static inline struct Relationships *createRelationships() {
     struct Relationships *hashMap;
 
@@ -721,14 +710,6 @@ static inline struct Relationships *createRelationships() {
 
     hashMap->size = SIZE_INIT;
     hashMap->indexesSize = 0;
-    
-    /*
-    int i;
-
-    for (i = 0; i < SIZE_INIT; i++) {
-        hashMap->list[i] = NULL;
-    }
-    */
 
     return hashMap;
 }
@@ -760,7 +741,6 @@ static inline void freeEntity(struct Entity *ent) {
                     removeReportComparsa(report, temp2->val->list[j], temp2->key);
                 }
                 
-                free(temp2->key);
                 freeStringListSame(temp2->val);
                 free(temp2);
 
@@ -771,9 +751,7 @@ static inline void freeEntity(struct Entity *ent) {
                 removeReportComparsa(report, temp->val->list[j], temp->key);              
             }
             
-            free(temp->key);
             freeStringListSame(temp->val);
-
             free(temp);
         }
     }
@@ -833,6 +811,7 @@ static inline struct StringList *getValEntity(struct Entity *ent, const char *ke
 
     return NULL;
 }
+
 struct Entities *e;
 
 struct EntityNode {
@@ -962,12 +941,13 @@ static inline struct Entity *getEntityByName(char *name) {
 
 static inline int addrel(char *ent1, char *ent2, char *rel) {
     struct Entity *ent = getEntityByName(ent1);
+    struct Entity *enti2 = getEntityByName(ent2);
 
-    if(getEntityByName(ent2) == NULL) return -2;
+    if(enti2 == NULL) return -2;
 
     int index = binaryStringListAddSearch(e->relations, rel);
     
-    int retval = insertRelationEntity(ent, ent2, e->relations->list[index]);
+    int retval = insertRelationEntity(ent, enti2->name, e->relations->list[index]);
     
     if (retval == -2)
         return -4;
