@@ -2,13 +2,15 @@
 
 Scopo del progetto è quello di implementare un social network "entità/relazione", ogni entità può avere e ricevere relazioni da altre entità.
 
-## Compilazione
+## Build
+
+### Compilazione
 Per compilare il codice sorgente eseguire lo script:
 ```
 sh build.sh
 ```
 
-## Esecuzione
+### Esecuzione
 Per poter lanciare il programma basta eseguire il seguente comando:
 ```
 ./release
