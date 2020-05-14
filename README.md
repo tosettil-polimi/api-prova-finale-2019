@@ -23,11 +23,11 @@ Per poter lanciare il programma basta eseguire da terminale il seguente comando:
 
 ## Comandi
 I comandi presenti nel programma sono i seguenti:
-- `addent "pippo"`: aggiunge un entità (o utente);
-- `addrel "amico" "pippo" "pluto"`: collega l'entità "pluto" con l'entità "pippo" con la relazione dal nome "amico", la relazione non è biunivoca;
-- `delent "pippo"`: elimina l'entità "pippo" e tutte le relazioni ad esso collegate;
-- `delrel "amico"`: elimina la relazione "amico";
-- `report`: stampa a video, per ogni relazione, l'entità che riceve più relazioni e il numero delle stesse;
+- `addent "pippo";`: aggiunge un entità (o utente);
+- `addrel "amico" "pippo" "pluto";`: collega l'entità "pluto" con l'entità "pippo" con la relazione dal nome "amico", la relazione non è biunivoca;
+- `delent "pippo";`: elimina l'entità "pippo" e tutte le relazioni ad esso collegate;
+- `delrel "amico";`: elimina la relazione "amico";
+- `report;`: stampa a video, per ogni relazione, l'entità che riceve più relazioni e il numero delle stesse;
 
 ## Sviluppo
 ### HashMap & Linked List
