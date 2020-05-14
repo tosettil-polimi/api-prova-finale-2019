@@ -27,7 +27,7 @@ I comandi presenti nel programma sono i seguenti:
 Il progetto è stato sviluppato con due strutture dati principali ovvero HashMap & Linked List.
 #### StringList
 La struttura StringList viene utilizzata ovunque serva una lista di stringhe all'interno delle HashMap; viene usata come lista dei nomi delle relazioni o lista dei nomi delle entità:
-```
+```c
 struct StringList {
     int size;
     char **list;
@@ -38,7 +38,7 @@ Per ulteriori dettagli visita [__stringlist.c__](https://github.com/tosettil-pol
 #### Relationships
 HashMap delle relazioni di un entità, al sui interno troviamo (per ogni relazione "key"), tutte le altre entità collegate:
 
-```
+```c
 struct RelationshipsNode {
     char *key;
     struct StringList *val;
@@ -55,7 +55,7 @@ struct Relationships {
 ```
 #### Entities
 Di seguito la HashMap delle entità:
-```
+```c
 struct Entity {
     char *name; // nome dell'entità
     struct Relationships *relationships; // hashmap delle relazioni che l'entità riceve
