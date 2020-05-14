@@ -9,6 +9,7 @@ Per compilare il codice sorgente installare gcc sul proprio PC:
 - Windows: Scaricare ed installare il programma [__MinGW__](http://www.mingw.org/);
 - Ubuntu: eseguire da terminale ```sudo apt update && sudo apt install build-essential```;
 - MacOS: installa XCode (buona fortuna) da questo [__link__](https://apps.apple.com/it/app/xcode/id497799835);
+
 Una volta configurato gcc, eseguite da terminale il seguente comando:
 ```
 sh build.sh
